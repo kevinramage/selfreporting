@@ -5,7 +5,10 @@ import { IUniverseSelectable } from "../universeObjects/universeSelectable";
 import { ReportDataSource } from "./reportDataSource";
 import { IReportResult } from "../../../types/reportResult";
 import { ConnectionError, CONNECTION_ERROR } from "../../error/connectionError";
-import { DataGridComponent, ReportComponent } from "./reportComponent";
+import { ReportComponent } from "./reportComponent";
+import { RESTRICTIONOPERAND_TYPE, RESTRICTIONOPERATION_TYPE } from "./reportRestriction";
+import { UniverseDimension } from "../universeObjects/universeDimension";
+import { UniverseObject } from "../universeObjects/universeObject";
 
 export class ReportGenerator {
 
@@ -41,7 +44,9 @@ export class ReportGenerator {
         const tableAlias = this.generateTablesAlias(dataSource.objects);
         const selectFields = this.generateSelectFields(dataSource.objects, tableAlias);
         const fromFields = this.generateFromFields(tableAlias);
-        const sql = format("SELECT %s FROM %s LIMIT 30", selectFields.join(", "), fromFields.join(", "));
+        const whereStatement = this.generateWhereFields(dataSource);
+        const sql = format("SELECT %s FROM %s %s LIMIT 30", selectFields.join(", "), fromFields.join(", "), whereStatement);
+        winston.info("ReportGenerator.generateQuery - Execute query: " + sql);
         return sql;
     }
 
@@ -118,5 +123,42 @@ export class ReportGenerator {
             fields.push(field);
         }
         return fields;
+    }
+
+    private generateWhereFields(dataSource: ReportDataSource) {
+        let whereStatement = "";
+        if (dataSource.restriction) {
+
+            // Constant
+            if (dataSource.restriction.operand2Type === RESTRICTIONOPERAND_TYPE.CONSTANT) {
+                const operand1 = dataSource.restriction.operand1 as IUniverseSelectable;
+                const operation = this.generateOperationFromFields(dataSource.restriction.operationType);
+                whereStatement = format("WHERE %s %s '%s'", operand1.select, operation, dataSource.restriction.operand2Constant);
+
+            // Field
+            } else if (dataSource.restriction.operand2Type === RESTRICTIONOPERAND_TYPE.FIELD) {
+                const operand1 = dataSource.restriction.operand1 as IUniverseSelectable;
+                const operand2 = dataSource.restriction.operand2 as IUniverseSelectable;
+                const operation = this.generateOperationFromFields(dataSource.restriction.operationType);
+                whereStatement = format("WHERE %s %s '%s'", operand1.select, operation, operand2.select);
+
+            } else {
+                throw new Error("ReportGeneration.generateWhereFields - Invalid operand type: " + dataSource.restriction.operand2Type);
+            }
+        }
+        return whereStatement;
+    }
+
+    private generateOperationFromFields(operation: string) {
+        let statement = "";
+        switch (operation) {
+            case RESTRICTIONOPERATION_TYPE.EQUALS: statement = "="; break;
+            case RESTRICTIONOPERATION_TYPE.NOT_EQUALS: statement = "!="; break;
+            case RESTRICTIONOPERATION_TYPE.MATCHES: statement = "LIKE"; break;
+            case RESTRICTIONOPERATION_TYPE.NOTMATCHES: statement = "NOT LIKE"; break;
+            default:
+                throw new Error("ReportGenerator.generateOperationFromFields - Invalid type: " + operation);
+        }
+        return statement;
     }
 }

@@ -3,6 +3,7 @@ import { CoreObject } from "../coreObject";
 import { UniverseTranslation } from "./universeTranslation";
 
 export class UniverseObject extends CoreObject {
+    
     protected translations : UniverseTranslation[];
 
     constructor() {

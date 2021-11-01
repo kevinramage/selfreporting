@@ -1,7 +1,5 @@
 import { Connection, createConnection, ResultSetHeader } from "mysql2";
-import { ConnectionModel } from "../../dataaccess/connection";
 import { CoreObject } from "./coreObject";
-import { Report } from "./report";
 
 export class UniverseConnection extends CoreObject {
     private _connection: Connection | null;
@@ -57,15 +55,6 @@ export class UniverseConnection extends CoreObject {
         if (this._connection) {
             this._connection.destroy();
         }
-    }
-
-    public static instanciateFromModel(model: ConnectionModel) {
-        const connection = new UniverseConnection();
-        connection.host = model.host;
-        connection.username = model.username;
-        connection.password = model.password;
-        connection.database = model.database;
-        return connection;
     }
 
     public get host() {

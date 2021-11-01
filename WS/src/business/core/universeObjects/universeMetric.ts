@@ -1,5 +1,4 @@
-import { BusinessObjectModel, BUSINESSOBJECT_TYPE, IBusinessObjectAttribute } from "../../../dataaccess/businessObject";
-import { UniverseDimension } from "./universeDimension";
+import { BUSINESSOBJECT_TYPE, IBusinessObjectAttribute } from "../../../dataaccess/businessObject";
 import { UniverseObject } from "./universeObject";
 import { IUniverseSelectable } from "./universeSelectable";
 
@@ -25,18 +24,6 @@ export class UniverseMetric extends UniverseObject implements IUniverseSelectabl
         newObj.select = this.select;
         newObj.where = this.where;
         return newObj;
-    }
-
-    public static instanciateFromModel(model: BusinessObjectModel) {
-        const metric = new UniverseMetric(model.name, model.description);
-        metric.id = model.id;
-        metric.tableName = model.tableName;
-        metric.select = model.selectStatement;
-        metric.where = model.whereStatement;
-        if (model.referenceId) {
-            metric.referenceId = model.referenceId;
-        }
-        return metric;
     }
 
 

@@ -27,7 +27,7 @@ export class ReportEditor extends Component<ReportEditorProps, ReportEditorState
     }
 
     componentDidMount() {
-        ReportService.execute("5f56c179-aeef-48ef-ae05-0a349e9478b9").then((reportResult) => {
+        ReportService.execute("5cbce977-fc65-480e-9689-7bd886a1a7a1").then((reportResult) => {
             console.info(reportResult);
             this.setState({reportResult: reportResult });
         }).catch((err) => {

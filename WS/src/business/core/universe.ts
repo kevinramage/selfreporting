@@ -3,7 +3,6 @@ import { BusinessObjectModel, BUSINESSOBJECT_TYPE } from "../../dataaccess/busin
 import { IUniverseAttribute, UniverseModel } from "../../dataaccess/universe";
 import { UniverseColumnModel } from "../../dataaccess/universeColumn";
 import { UniverseTableModel } from "../../dataaccess/universeTable";
-import { UniverseConnection } from "./connection";
 import { CoreObject } from "./coreObject";
 import { BusinessLayer } from "./universeObjects/businessLayer";
 import { DataLayer } from "./universeObjects/dataLayer";
@@ -185,17 +184,6 @@ export class Universe extends CoreObject {
             where: cls.whereStatement,
             tableName: cls.tableName
         } as IUniverseMetric;
-    }
-
-    public static instanciateFromModel(model: UniverseModel) {
-        const universe = new Universe();
-        universe.id = model.id;
-        universe.name = model.name;
-        universe.description = model.description;
-        if (model.connection) {
-            universe.dataLayer.connection = UniverseConnection.instanciateFromModel(model.connection);
-        }
-        return universe;
     }
 
     public get dataLayer() {

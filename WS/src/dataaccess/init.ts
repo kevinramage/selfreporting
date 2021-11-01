@@ -18,6 +18,8 @@ import { ReportDataGridModel } from "./reportDataGrid";
 import { ReportDataGridColumnModel } from "./reportDataGridColumn";
 import { DataGridColumn, DataGridComponent } from "../business/core/reportObjects/reportComponent";
 import { ReportRestrictionModel } from "./reportRestriction";
+import { v4 } from "uuid";
+import { ReportRestriction, RESTRICTIONOPERAND_TYPE, RESTRICTIONOPERATION_TYPE } from "../business/core/reportObjects/reportRestriction";
 
 export class InitDataAccess {
 
@@ -140,10 +142,8 @@ export class InitDataAccess {
         // ReportRestriction
         ReportRestrictionModel.init({
             id: { type: DataTypes.STRING, primaryKey: true },
-            operand1Id: { type: DataTypes.STRING },
             operationType: { type: DataTypes.STRING },
             operand2Type: { type: DataTypes.STRING },
-            operand2Id: { type: DataTypes.STRING },
             operand2Constant: { type: DataTypes.STRING }
         }, {sequelize: sequelize, tableName: "reportRestriction"})
     }
@@ -158,12 +158,18 @@ export class InitDataAccess {
         UniverseModel.hasMany(BusinessObjectModel, { sourceKey: "id", as: "objects" });
         BusinessObjectModel.hasMany(BusinessObjectModel, { sourceKey: "id", as: "subObjects"});
 
+        // Report data access
         ReportModel.belongsTo(UniverseModel, { targetKey: "id", as: "universe" });
         ReportModel.hasMany(BusinessObjectModel, { sourceKey: "id", foreignKey: "reportId", as: "selectFields"});
+        ReportModel.hasOne(ReportRestrictionModel, { sourceKey: "id", as: "restriction" });
+        ReportRestrictionModel.hasOne(BusinessObjectModel, { sourceKey: "id", as: "operand1"});
+        ReportRestrictionModel.hasOne(BusinessObjectModel, { sourceKey: "id", as: "operand2"});
 
+        // Report presentation
         ReportModel.hasOne(ReportComponentModel, { sourceKey: "id", as: "rootComponent" });
-        ReportComponentModel.belongsTo(ReportDataGridModel, { targetKey:"id", as: "dataGrid" });
-        ReportDataGridModel.hasMany(ReportDataGridColumnModel, { sourceKey: "id", as: "columns"})
+        ReportComponentModel.hasOne(ReportDataGridModel, { sourceKey:"id", as: "dataGrid" });
+        ReportDataGridModel.hasMany(ReportDataGridColumnModel, { sourceKey: "id", as: "columns"});
+
     }
 
     private addModels(sequelize: Sequelize) {
@@ -380,10 +386,21 @@ export class InitDataAccess {
             component.addColumn(productIdColumn);
             component.addColumn(productNameColumn);
 
+            const restrictionProductType = productType.clone();
+            restrictionProductType.id = v4();
+            restrictionProductType.referenceId = productType.id;
+
+            const restriction = new ReportRestriction();
+            restriction.operand1 = restrictionProductType;
+            restriction.operationType = RESTRICTIONOPERATION_TYPE.EQUALS;
+            restriction.operand2Type = RESTRICTIONOPERAND_TYPE.CONSTANT;
+            restriction.operand2Constant = "Kids";
+
             const report = new Report("myProductType");
             report.universe = universe;
             report.dataSource.addObject(productType);
             report.dataSource.addObject(productName);
+            report.dataSource.restriction = restriction;
             report.rootComponent = component;
 
 

@@ -1,6 +1,6 @@
 import * as winston from "winston";
 import { ICoreObject } from "../../types/coreObject";
-import { BusinessObjectModel, BUSINESSOBJECT_TYPE } from "../../dataaccess/businessObject";
+import { BusinessObjectModel } from "../../dataaccess/businessObject";
 import { IReportAttribute, ReportModel } from "../../dataaccess/report";
 import { CoreObject } from "./coreObject";
 import { ReportDataSource } from "./reportObjects/reportDataSource";
@@ -11,12 +11,12 @@ import { IUniverseSelectionnable } from "../../types/universeSelectionnable";
 import { UniverseModel } from "../../dataaccess/universe";
 import { ReportGenerator } from "./reportObjects/reportGenerator";
 import { ConnectionModel } from "../../dataaccess/connection";
-import { UniverseDimension } from "./universeObjects/universeDimension";
-import { UniverseMetric } from "./universeObjects/universeMetric";
-import { DataGridColumn, DataGridComponent, ReportComponent } from "./reportObjects/reportComponent";
+import { ReportComponent } from "./reportObjects/reportComponent";
 import { ReportDataGridModel } from "../../dataaccess/reportDataGrid";
 import { ReportComponentModel } from "../../dataaccess/reportComponent";
 import { ReportDataGridColumnModel } from "../../dataaccess/reportDataGridColumn";
+import { ReportAdapter } from "../../adapters/report";
+import { IReportRestrictionAttribute, ReportRestrictionModel } from "../../dataaccess/reportRestriction";
 
 export class Report extends CoreObject {
     private _dataSource : ReportDataSource;
@@ -39,6 +39,10 @@ export class Report extends CoreObject {
                     { model: ReportDataGridModel, as: "dataGrid", include: [
                         { model: ReportDataGridColumnModel, as: "columns" }
                     ]}
+                ]},
+                { model: ReportRestrictionModel, as: "restriction", include: [
+                    { model: BusinessObjectModel, as: "operand1" },
+                    { model: BusinessObjectModel, as: "operand2"}
                 ]}
             ]}).then(() => {
                 resolve();
@@ -69,7 +73,12 @@ export class Report extends CoreObject {
     public static getReport(id: string) {
         return new Promise<IReport|null>((resolve, reject) => {
             ReportModel.findByPk(id, { include: [
-                { model: BusinessObjectModel, as: "selectFields" }
+                { model: BusinessObjectModel, as: "selectFields" },
+                { model: ReportComponentModel, as: "rootComponent", include: [
+                    { model: ReportDataGridModel, as: "dataGrid", include: [
+                        { model: ReportDataGridColumnModel, as: "columns" }
+                    ]}
+                ] }
             ]}).then((report) => {
                 let data : IReport | null = null;
                 if (report) {
@@ -143,6 +152,10 @@ export class Report extends CoreObject {
                     { model: ConnectionModel, as: "connection" }
                 ]}, 
                 { model: BusinessObjectModel, as: "selectFields" },
+                { model: ReportRestrictionModel, as: "restriction", include: [
+                    { model: BusinessObjectModel, as: "operand1"},
+                    { model: BusinessObjectModel, as: "operand2"},
+                ]},
                 { model: ReportComponentModel, as: "rootComponent", include: [
                     { model: ReportDataGridModel, as: "dataGrid", include: [
                         { model: ReportDataGridColumnModel, as: "columns" }
@@ -150,7 +163,7 @@ export class Report extends CoreObject {
                 ] }
             ]}).then((reportModel) => {
                 if (reportModel) {
-                    const report = Report.instanciateFromModel(reportModel);
+                    const report = ReportAdapter.instanciateFromModel(reportModel);
                     const reportGenerator = new ReportGenerator();
                     reportGenerator.generate(report, limit, offset).then((result) => {
                         resolve(result);
@@ -164,55 +177,7 @@ export class Report extends CoreObject {
         });
     }
 
-    public static instanciateFromModel(model: ReportModel) {
-        const report = new Report(model.name);
-        report.id = model.id;
-        report.description = model.description;
-        if (model.universe) {
-            report.universe = Universe.instanciateFromModel(model.universe);
-        }
-        if (model.selectFields) {
-            model.selectFields.forEach(f => {
-                const object = Report.instanciateFieldFromModel(f);
-                report.dataSource.addObject(object);
-            });
-        }
-        if (model.rootComponent) {
-            if (model.rootComponent.dataGrid) {
-                report.rootComponent = Report.instanciateDataGridFromModel(model.rootComponent.dataGrid);
-            } else {
-                throw new Error("Report.instanciateFromModel - Type unknown")
-            }
-        }
-        return report;
-    }
 
-    private static instanciateFieldFromModel(model: BusinessObjectModel) {
-        switch (model.objectType) {
-            case BUSINESSOBJECT_TYPE.DIMENSION:
-                return UniverseDimension.instanciateFromModel(model);
-            case BUSINESSOBJECT_TYPE.METRIC:
-                return UniverseMetric.instanciateFromModel(model);
-            default:
-                throw new Error("Invalid type");
-        }
-    }
-
-    private static instanciateDataGridFromModel(model: ReportDataGridModel) {
-        const dataGrid = new DataGridComponent();
-        model.columns.forEach(c => { dataGrid.addColumn(Report.instanciateDataGridColumnFromModel(c)); });
-        dataGrid.rowPerPage = model.rowPerPage;
-        return dataGrid;
-    }
-
-    private static instanciateDataGridColumnFromModel(model: ReportDataGridColumnModel) {
-        const dataGridColumn = new DataGridColumn();
-        dataGridColumn.fieldName = model.fieldName;
-        dataGridColumn.headerName = model.headerName;
-        dataGridColumn.description = model.description;
-        dataGridColumn.width = model.width;
-        return dataGridColumn;
-    }
 
     public get dataSource() {
         return this._dataSource;
@@ -244,6 +209,9 @@ export class Report extends CoreObject {
         }
         if (this.rootComponent) {
             data.rootComponent = ReportComponent.getData(this.rootComponent);
+        }
+        if (this.dataSource.restriction) {
+            data.restriction = this.dataSource.dataRestriction as IReportRestrictionAttribute;
         }
         return data;
     }
