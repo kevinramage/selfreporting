@@ -1,0 +1,11 @@
+.businessLayerTree {
+    display: inline-block;
+    vertical-align: top;
+    min-width: 400px;
+}
+
+.dataSourceEditor {
+    display: inline-block;
+    vertical-align: top;
+    min-width: 400px;
+}

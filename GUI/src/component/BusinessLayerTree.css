@@ -1,0 +1,24 @@
+.tree {
+    max-width: 500px;
+}
+
+.title {
+    font-size: 14px;
+    font-weight: bold;
+    padding-left: 30px;
+}
+
+.button {
+    padding-top: 0px;
+    padding-bottom: 0px;
+    height: 50px;
+}
+
+.listItemText {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+.collapse {
+    margin-left: 15px;
+}

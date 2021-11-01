@@ -1,0 +1,18 @@
+.dataSourceEditor {
+    padding: 10px;
+}
+
+.selectLabel {
+    display: block;
+    margin-bottom: 70px;
+}
+
+.restrictionLabel {
+    display: block;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.restrictionLine {
+    display: none;
+}

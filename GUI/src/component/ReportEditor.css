@@ -1,0 +1,23 @@
+.workspace {
+    position: relative;
+    min-height: 450px;
+}
+
+.actionBar {
+    position: absolute;
+    background: #DDD;
+    width: 200px;
+    display: block;
+    top: 0px;
+    left: 0px;
+    bottom: 0px;
+}
+
+.contentBar {
+    position: absolute;
+    background: #EEE;
+    left: 200px;
+    top: 0px;
+    bottom: 0px;
+    right: 0px;
+}
