@@ -1,6 +1,6 @@
 import { CoreObject } from "../coreObject";
 import { UniverseColumn } from "./universeColumn";
-import { IUniverseTable } from "../../../dataaccess/universeTable";
+import { IUniverseTableAttributes } from "../../../dataaccess/universeTable";
 
 export class UniverseTable extends CoreObject {
     private _columns: UniverseColumn[];
@@ -24,6 +24,6 @@ export class UniverseTable extends CoreObject {
             name: this.name,
             description: this.description,
             columns: this.columns.map(c => { return c.data; })
-        } as IUniverseTable;
+        } as IUniverseTableAttributes;
     }
 }

@@ -15,6 +15,9 @@ export class UniverseColumn {
     public get id() {
         return this._id;
     }
+    public set id(value) {
+        this._id = value;
+    }
 
     public get name() {
         return this._name;

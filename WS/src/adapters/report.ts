@@ -39,7 +39,11 @@ export class ReportAdapter {
 
     private static instanciateDataGridFromModel(model: ReportDataGridModel) {
         const dataGrid = new DataGridComponent();
-        model.columns.forEach(c => { dataGrid.addColumn(ReportAdapter.instanciateDataGridColumnFromModel(c)); });
+        model.columns.forEach(c => { 
+            const column = ReportAdapter.instanciateDataGridColumnFromModel(c);
+            dataGrid.addColumn(column);
+            column.order = c.order; 
+        });
         dataGrid.rowPerPage = model.rowPerPage;
         return dataGrid;
     }

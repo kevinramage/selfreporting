@@ -2,7 +2,7 @@ import { Model } from "sequelize";
 import { Optional } from "sequelize/types";
 import { UniverseColumnModel } from "./universeColumn";
 
-export interface IUniverseTable {
+export interface IUniverseTableAttributes {
     id: string;
     name: string;
     description: string;
@@ -10,10 +10,10 @@ export interface IUniverseTable {
     columns ?: UniverseColumnModel[];
 }
 
-interface IUniverseTableCreationAttributes extends Optional<IUniverseTable, "id"> {};
+interface IUniverseTableCreationAttributes extends Optional<IUniverseTableAttributes, "id"> {};
 
-export class UniverseTableModel extends Model<IUniverseTable, IUniverseTableCreationAttributes>
-  implements IUniverseTable {
+export class UniverseTableModel extends Model<IUniverseTableAttributes, IUniverseTableCreationAttributes>
+  implements IUniverseTableAttributes {
   public id!: string;
   public name!: string;
   public description!: string;

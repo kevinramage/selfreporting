@@ -7,12 +7,11 @@ import { IReportResult } from "../../../types/reportResult";
 import { ConnectionError, CONNECTION_ERROR } from "../../error/connectionError";
 import { ReportComponent } from "./reportComponent";
 import { RESTRICTIONOPERAND_TYPE, RESTRICTIONOPERATION_TYPE } from "./reportRestriction";
-import { UniverseDimension } from "../universeObjects/universeDimension";
-import { UniverseObject } from "../universeObjects/universeObject";
+import { Universe } from "../universe";
 
 export class ReportGenerator {
 
-    public generate(report: Report, limit: number, offset: number) {
+    public generate(report: Report, universe: Universe, limit: number, offset: number) {
 
         return new Promise<IReportResult>(async (resolve) => {
 
@@ -26,7 +25,7 @@ export class ReportGenerator {
             };
             
             // Execute query
-            result.sql = this.generateQuery(report.dataSource);
+            result.sql = this.generateQuery(report.dataSource, universe);
             const data = await this.executeQuery(report, result);
 
             // Update presentation
@@ -40,12 +39,12 @@ export class ReportGenerator {
         });
     }
 
-    private generateQuery(dataSource: ReportDataSource) {
+    private generateQuery(dataSource: ReportDataSource, universe: Universe) {
         const tableAlias = this.generateTablesAlias(dataSource.objects);
         const selectFields = this.generateSelectFields(dataSource.objects, tableAlias);
         const fromFields = this.generateFromFields(tableAlias);
-        const whereStatement = this.generateWhereFields(dataSource);
-        const sql = format("SELECT %s FROM %s %s LIMIT 30", selectFields.join(", "), fromFields.join(", "), whereStatement);
+        const whereStatement = this.generateWhereFields(dataSource, tableAlias, universe);
+        const sql = format("SELECT %s FROM %s%s LIMIT 30", selectFields.join(", "), fromFields.join(", "), whereStatement);
         winston.info("ReportGenerator.generateQuery - Execute query: " + sql);
         return sql;
     }
@@ -97,7 +96,7 @@ export class ReportGenerator {
         for (var key in objects) {
             const universeObject = objects[key];
             if (!tables[universeObject.tableName]) {
-                const alias = String.fromCharCode(reference+index);
+                const alias = String.fromCharCode(reference+index++);
                 tables[universeObject.tableName] = alias;
             }
         }
@@ -125,7 +124,54 @@ export class ReportGenerator {
         return fields;
     }
 
-    private generateWhereFields(dataSource: ReportDataSource) {
+    private generateWhereFields(dataSource: ReportDataSource, tableAlias: {[key: string]: string}, universe: Universe) {
+        let restrictions : string[] = [];
+
+        // Joins
+        const joinsStatement = this.generateJoins(tableAlias, universe);
+        restrictions = restrictions.concat(joinsStatement);
+
+        // Restrictions
+        const restrictionStatement = this.generateRestrictions(dataSource);
+        if (restrictionStatement) {
+            restrictions.push(restrictionStatement);
+        }
+
+        if (restrictions.length > 0) {
+            return " WHERE " +restrictions.join(" AND ");
+        } else {
+            return "";
+        }
+    }
+
+    private generateJoins(tableAlias: {[key: string]: string}, universe: Universe) {
+        let joins : string[] = [];
+        if (Object.keys(tableAlias).length === 2) {
+            const tableA = Object.keys(tableAlias)[0];
+            const tableB = Object.keys(tableAlias)[1];
+            const join = this.identifyJoin(tableAlias, universe, tableA, tableB);
+            if (join != null) {
+                joins.push(join);
+            }
+        }
+        return joins;
+    }
+
+    private identifyJoin(tableAlias: {[key: string]: string}, universe: Universe, tableA: string, tableB: string) {
+        const join = universe.dataLayer.joins.find(j => {
+            return (j.tableA?.name === tableA && j.tableB?.name === tableB) ||
+                (j.tableA?.name === tableB && j.tableB?.name === tableA);
+        });
+        if (join) {
+            const keyA = tableAlias[tableA];
+            const keyB = tableAlias[tableB];
+            return format("%s.%s = %s.%s", keyA, join.nameA, keyB, join.nameB );
+        } else {
+            return null;
+        }
+    }
+
+    private generateRestrictions(dataSource: ReportDataSource) {
         let whereStatement = "";
         if (dataSource.restriction) {
 
@@ -133,14 +179,14 @@ export class ReportGenerator {
             if (dataSource.restriction.operand2Type === RESTRICTIONOPERAND_TYPE.CONSTANT) {
                 const operand1 = dataSource.restriction.operand1 as IUniverseSelectable;
                 const operation = this.generateOperationFromFields(dataSource.restriction.operationType);
-                whereStatement = format("WHERE %s %s '%s'", operand1.select, operation, dataSource.restriction.operand2Constant);
+                whereStatement = format("%s %s '%s'", operand1.select, operation, dataSource.restriction.operand2Constant);
 
             // Field
             } else if (dataSource.restriction.operand2Type === RESTRICTIONOPERAND_TYPE.FIELD) {
                 const operand1 = dataSource.restriction.operand1 as IUniverseSelectable;
                 const operand2 = dataSource.restriction.operand2 as IUniverseSelectable;
                 const operation = this.generateOperationFromFields(dataSource.restriction.operationType);
-                whereStatement = format("WHERE %s %s '%s'", operand1.select, operation, operand2.select);
+                whereStatement = format("%s %s '%s'", operand1.select, operation, operand2.select);
 
             } else {
                 throw new Error("ReportGeneration.generateWhereFields - Invalid operand type: " + dataSource.restriction.operand2Type);

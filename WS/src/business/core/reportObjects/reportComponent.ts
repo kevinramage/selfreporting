@@ -69,6 +69,10 @@ export class DataGridComponent extends ReportComponent {
         this._columns.push(col);
     }
 
+    public sortOrder() {
+        this._columns = this.columns.sort((a,b) => { return (a.order - b.order); });
+    }
+
     public addRow(row: any) {
         this._rows.push(row);
     }
@@ -97,7 +101,7 @@ export class DataGridComponent extends ReportComponent {
 
     public get data() {
         const cols = this.columns.map(c => { return c.data })
-            .sort((a, b) => { return (a.order - b.order) ? 1 : -1; })
+            .sort((a, b) => { return (a.order - b.order) });
         return {
             id: this.id,
             type: this.type,

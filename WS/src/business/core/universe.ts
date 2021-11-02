@@ -17,6 +17,8 @@ import { IUniverseMetric } from "../../types/universeMetric";
 import { IUniverseObject } from "../../types/universeObject";
 import { format } from "util";
 import { ConnectionModel } from "../../dataaccess/connection";
+import { UniverseJoin } from "./universeObjects/universeJoin";
+import { UniverseJoinModel } from "../../dataaccess/universeJoint";
 
 export class Universe extends CoreObject {
     private _version: Version;
@@ -35,6 +37,10 @@ export class Universe extends CoreObject {
             UniverseModel.create(this.data, {include: [
                 { model: UniverseTableModel, as: "tables", include: [
                     { model: UniverseColumnModel, as: "columns" }
+                ]},
+                { model: UniverseJoinModel, as: "joins", include: [
+                    { model: UniverseTableModel, as: "tableA" },
+                    { model: UniverseTableModel, as: "tableB" }
                 ]},
                 { model: ConnectionModel, as: "connection" },
                 { model: BusinessObjectModel, as: "objects", include: [
@@ -72,7 +78,10 @@ export class Universe extends CoreObject {
                 { model: UniverseTableModel, as: "tables", include: [
                     { model: UniverseColumnModel, as: "columns" }
                 ]},
-                
+                { model: UniverseJoinModel, as: "joins", include: [
+                    { model: UniverseTableModel, as: "tableA" },
+                    { model: UniverseTableModel, as: "tableB" }
+                ]},
                 { model: BusinessObjectModel, as: "objects", include: [
                     { model: BusinessObjectModel, as: "subObjects" }
                 ]}
@@ -201,6 +210,7 @@ export class Universe extends CoreObject {
             description: this.description,
             objects: this.businessLayer.data,
             tables: this.dataLayer.tablesData,
+            joins: this.dataLayer.joinsData,
             connection: this.dataLayer.connectionData
         } as IUniverseAttribute
     }

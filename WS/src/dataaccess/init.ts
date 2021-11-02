@@ -20,6 +20,8 @@ import { DataGridColumn, DataGridComponent } from "../business/core/reportObject
 import { ReportRestrictionModel } from "./reportRestriction";
 import { v4 } from "uuid";
 import { ReportRestriction, RESTRICTIONOPERAND_TYPE, RESTRICTIONOPERATION_TYPE } from "../business/core/reportObjects/reportRestriction";
+import { UniverseJoinModel } from "./universeJoint";
+import { UniverseJoin } from "../business/core/universeObjects/universeJoin";
 
 export class InitDataAccess {
 
@@ -145,15 +147,28 @@ export class InitDataAccess {
             operationType: { type: DataTypes.STRING },
             operand2Type: { type: DataTypes.STRING },
             operand2Constant: { type: DataTypes.STRING }
-        }, {sequelize: sequelize, tableName: "reportRestriction"})
+        }, {sequelize: sequelize, tableName: "reportRestriction"});
+
+        // Universe join
+        UniverseJoinModel.init({
+            id: { type: DataTypes.STRING, primaryKey: true },
+            nameA: { type: DataTypes.STRING },
+            nameB: { type: DataTypes.STRING }
+        }, {sequelize: sequelize, tableName: "universeJoins"})
     }
 
     private addRelations() {
+
+        // Universes
         ConnectionModel.belongsTo(UniverseModel, { targetKey: "id" });
         UniverseModel.hasOne(ConnectionModel, { sourceKey: "id", as: "connection" });
 
+        // Tables and joins
         UniverseModel.hasMany(UniverseTableModel, { sourceKey: "id", as: "tables" });
         UniverseTableModel.hasMany(UniverseColumnModel, { sourceKey: "id", as: "columns"});
+        UniverseModel.hasMany(UniverseJoinModel, { sourceKey: "id", as: "joins" });
+        UniverseJoinModel.belongsTo(UniverseTableModel, { targetKey: "id", as: "tableA" });
+        UniverseJoinModel.belongsTo(UniverseTableModel, { targetKey: "id", as: "tableB" });
 
         UniverseModel.hasMany(BusinessObjectModel, { sourceKey: "id", as: "objects" });
         BusinessObjectModel.hasMany(BusinessObjectModel, { sourceKey: "id", as: "subObjects"});
@@ -169,7 +184,6 @@ export class InitDataAccess {
         ReportModel.hasOne(ReportComponentModel, { sourceKey: "id", as: "rootComponent" });
         ReportComponentModel.hasOne(ReportDataGridModel, { sourceKey:"id", as: "dataGrid" });
         ReportDataGridModel.hasMany(ReportDataGridColumnModel, { sourceKey: "id", as: "columns"});
-
     }
 
     private addModels(sequelize: Sequelize) {
@@ -183,6 +197,7 @@ export class InitDataAccess {
         sequelize.modelManager.addModel(ReportDataGridModel);
         sequelize.modelManager.addModel(ReportDataGridColumnModel);
         sequelize.modelManager.addModel(ReportRestrictionModel);
+        sequelize.modelManager.addModel(UniverseJoinModel);
     }
 
     public generateData(sequelize: Sequelize) {
@@ -241,6 +256,43 @@ export class InitDataAccess {
             sales.addColumn(new UniverseColumn("price", "float"));
             sales.addColumn(new UniverseColumn("quantity", "float"));
             universe.dataLayer.addTable(sales);
+
+            const storesSalesJoin = new UniverseJoin();
+            storesSalesJoin.nameA = "store_id";
+            storesSalesJoin.tableA = store;
+            storesSalesJoin.nameB = "store_id";
+            storesSalesJoin.tableB = sales;
+            universe.dataLayer.addJoin(storesSalesJoin);
+
+            const saleTypesSalesJoin = new UniverseJoin();
+            saleTypesSalesJoin.nameA = "sales_types_id";
+            saleTypesSalesJoin.tableA = salesTypes;
+            saleTypesSalesJoin.nameB = "sales_types_id";
+            saleTypesSalesJoin.tableB = sales;
+            universe.dataLayer.addJoin(saleTypesSalesJoin);
+
+            const employeesSalesJoin = new UniverseJoin();
+            employeesSalesJoin.nameA = "employee_id";
+            employeesSalesJoin.tableA = employee;
+            employeesSalesJoin.nameB = "employee_id";
+            employeesSalesJoin.tableB = sales;
+            universe.dataLayer.addJoin(employeesSalesJoin);
+
+            const productsSalesJoin = new UniverseJoin();
+            productsSalesJoin.nameA = "product_id";
+            productsSalesJoin.tableA = product;
+            productsSalesJoin.nameB = "product_id";
+            productsSalesJoin.tableB = sales;
+            universe.dataLayer.addJoin(productsSalesJoin);
+
+            const timesSalesJoin = new UniverseJoin();
+            timesSalesJoin.nameA = "time_id";
+            timesSalesJoin.tableA = time;
+            timesSalesJoin.nameB = "time_id";
+            timesSalesJoin.tableB = sales;
+            universe.dataLayer.addJoin(timesSalesJoin);
+
+
 
             const saleTypeId = new UniverseDimension("Sale type id", "Id of the SaleType");
             saleTypeId.tableName = "dim_sales_type";
@@ -382,9 +434,21 @@ export class InitDataAccess {
             productNameColumn.fieldName = "product_name";
             productNameColumn.description = "Name of the product";
 
+            const priceColumn = new DataGridColumn();
+            priceColumn.headerName = "Price";
+            priceColumn.fieldName = "price";
+            priceColumn.description = "Price";
+
+            const quantityColumn = new DataGridColumn();
+            quantityColumn.headerName = "Quantity";
+            quantityColumn.fieldName = "quantity";
+            quantityColumn.description = "Quantity";
+
             const component = new DataGridComponent();
             component.addColumn(productIdColumn);
             component.addColumn(productNameColumn);
+            component.addColumn(priceColumn);
+            component.addColumn(quantityColumn);
 
             const restrictionProductType = productType.clone();
             restrictionProductType.id = v4();
@@ -400,10 +464,10 @@ export class InitDataAccess {
             report.universe = universe;
             report.dataSource.addObject(productType);
             report.dataSource.addObject(productName);
+            report.dataSource.addObject(salesPrice);
+            report.dataSource.addObject(salesQuantity);
             report.dataSource.restriction = restriction;
             report.rootComponent = component;
-
-
             
             await universe.create();
             await report.create();

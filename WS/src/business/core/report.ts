@@ -17,6 +17,9 @@ import { ReportComponentModel } from "../../dataaccess/reportComponent";
 import { ReportDataGridColumnModel } from "../../dataaccess/reportDataGridColumn";
 import { ReportAdapter } from "../../adapters/report";
 import { IReportRestrictionAttribute, ReportRestrictionModel } from "../../dataaccess/reportRestriction";
+import { UniverseJoin } from "./universeObjects/universeJoin";
+import { UniverseJoinModel } from "../../dataaccess/universeJoint";
+import { UniverseTableModel } from "../../dataaccess/universeTable";
 
 export class Report extends CoreObject {
     private _dataSource : ReportDataSource;
@@ -132,7 +135,8 @@ export class Report extends CoreObject {
         return {
             type: "DATAGRID",
             root: {
-                columns: dataGrid.columns.map(c => {
+                columns: dataGrid.columns.sort((a,b) => { return (a.order-b.order); })
+                    .map(c => {
                     return {
                         fieldName: c.fieldName,
                         headerName: c.headerName,
@@ -149,7 +153,11 @@ export class Report extends CoreObject {
         return new Promise<IReportResult|null>((resolve, reject) => {
             ReportModel.findByPk(id, { include: [
                 { model: UniverseModel, as: "universe", include: [
-                    { model: ConnectionModel, as: "connection" }
+                    { model: ConnectionModel, as: "connection" },
+                    { model: UniverseJoinModel, as: "joins", include: [
+                        { model: UniverseTableModel, as: "tableA"},
+                        { model: UniverseTableModel, as: "tableB"},
+                    ] }
                 ]}, 
                 { model: BusinessObjectModel, as: "selectFields" },
                 { model: ReportRestrictionModel, as: "restriction", include: [
@@ -165,7 +173,7 @@ export class Report extends CoreObject {
                 if (reportModel) {
                     const report = ReportAdapter.instanciateFromModel(reportModel);
                     const reportGenerator = new ReportGenerator();
-                    reportGenerator.generate(report, limit, offset).then((result) => {
+                    reportGenerator.generate(report, report.universe as Universe, limit, offset).then((result) => {
                         resolve(result);
                     }).catch((err) => {
                         resolve(null); ///TODO ?

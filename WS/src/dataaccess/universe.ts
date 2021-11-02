@@ -1,15 +1,17 @@
 import { Model } from "sequelize";
 import { Optional } from "sequelize/types";
-import { BusinessObjectModel } from "./businessObject";
+import { BusinessObjectModel, IBusinessObjectAttribute } from "./businessObject";
 import { ConnectionModel } from "./connection";
-import { UniverseTableModel } from "./universeTable";
+import { IUniverseJoinAttributes, UniverseJoinModel } from "./universeJoint";
+import { IUniverseTableAttributes, UniverseTableModel } from "./universeTable";
 
 export interface IUniverseAttribute {
     id: string;
     name: string;
     description: string;
-    objects ?: BusinessObjectModel[];
-    tables ?: UniverseTableModel[];
+    objects ?: IBusinessObjectAttribute[];
+    joins ?: IUniverseJoinAttributes[];
+    tables ?: IUniverseTableAttributes[];
     connection ?: ConnectionModel;
 }
 
@@ -21,6 +23,7 @@ export class UniverseModel extends Model<IUniverseAttribute, IVersionCreationAtt
   public name!: string;
   public description!: string;
   public readonly objects ?: BusinessObjectModel[];
+  public readonly joins ?: UniverseJoinModel[];
   public readonly tables ?: UniverseTableModel[];
   public readonly connection ?: ConnectionModel;
 
