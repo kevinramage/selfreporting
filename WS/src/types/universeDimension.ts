@@ -1,7 +1,5 @@
-import { IUniverseSelectionnable } from "./universeSelectionnable";
+import { IUniverseSelectionnableWebService } from "./universeSelectionnable";
 
-export interface IUniverseDimension extends IUniverseSelectionnable {
-    tableName: string;
-    select: string;
-    where: string;
+export interface IUniverseDimension extends IUniverseSelectionnableWebService {
+
 }

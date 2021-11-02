@@ -1,6 +1,10 @@
-import { ICoreObject } from "./coreObject";
-import { IUniverseSelectionnable } from "./universeSelectionnable";
 
-export interface IReport extends ICoreObject {
-    selectFields: IUniverseSelectionnable[];
+import { ICoreObjectWebService } from "./coreObject";
+import { IReportComponentWebService } from "./reportComponent";
+import { IUniverseSelectionnableWebService } from "./universeSelectionnable";
+
+export interface IReportWebService extends ICoreObjectWebService {
+    universeId ?: string;
+    selectFields ?: IUniverseSelectionnableWebService[];
+    rootComponent ?: IReportComponentWebService;
 }

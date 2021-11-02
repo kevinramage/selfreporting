@@ -470,7 +470,7 @@ export class InitDataAccess {
             report.rootComponent = component;
             
             await universe.create();
-            await report.create();
+            await report.create2();
 
             resolve();
         });

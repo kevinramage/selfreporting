@@ -1,8 +1,8 @@
-import { ICoreObject } from "./coreObject";
+import { ICoreObjectWebService } from "./coreObject";
 import { IUniverseObject } from "./universeObject";
 import { IUniverseTable } from "./universeTable";
 
-export interface IUniverse extends ICoreObject {
+export interface IUniverse extends ICoreObjectWebService {
     tables: IUniverseTable[];
     objects: IUniverseObject[];
 }

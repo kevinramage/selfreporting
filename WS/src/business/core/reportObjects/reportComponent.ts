@@ -35,6 +35,7 @@ export class ReportComponent {
 
     public static getDataForWS(component: ReportComponent) {
         return {
+            id: component.id,
             type: component.type,
             root: (component as DataGridComponent).data
         }

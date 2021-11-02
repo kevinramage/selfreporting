@@ -1,12 +1,15 @@
 import { Report } from "../business/core/report";
 import { DataGridColumn, DataGridComponent } from "../business/core/reportObjects/reportComponent";
 import { ReportRestriction } from "../business/core/reportObjects/reportRestriction";
-import { BusinessObjectModel, BUSINESSOBJECT_TYPE } from "../dataaccess/businessObject";
-import { ReportModel } from "../dataaccess/report";
+import { BusinessObjectModel, BUSINESSOBJECT_TYPE, IBusinessObjectAttribute } from "../dataaccess/businessObject";
+import { IReportAttribute, ReportModel } from "../dataaccess/report";
 import { ReportDataGridModel } from "../dataaccess/reportDataGrid";
 import { ReportDataGridColumnModel } from "../dataaccess/reportDataGridColumn";
 import { ReportRestrictionModel } from "../dataaccess/reportRestriction";
+import { IReportWebService } from "../types/report";
+import { IUniverseSelectionnableWebService } from "../types/universeSelectionnable";
 import { BusinessObjectAdapter } from "./businessObject";
+import { ReportComponentAdapter } from "./reportComponent";
 import { UniverseAdapter } from "./universe";
 
 export class ReportAdapter {
@@ -35,6 +38,106 @@ export class ReportAdapter {
             }
         }
         return report;
+    }
+
+    public static instanciateFromWebService(ws: IReportWebService) {
+        let data : IReportAttribute = {
+            id: ws.id,
+            name: ws.name,
+            description: ws.description
+        }
+        if (ws.universeId) {
+            data.universeId = ws.universeId;
+        }
+        if (ws.selectFields) {
+            data.selectFields = ws.selectFields.map(s => { return {
+                id: s.id,
+                name: s.name,
+                description: s.description,
+                objectType: s.objectType,
+                selectStatement: s.select,
+                whereStatement: s.where,
+                tableName: s.tableName,
+                referenceId: s.referenceId
+            }});
+        }
+        if (ws.rootComponent) {
+            data.rootComponent = ReportComponentAdapter.instanciateFromWebService(ws.rootComponent);
+        }
+        return data;
+    }
+
+    public static generateWSFromModel(model: ReportModel) {
+        let ws : IReportWebService = {
+            id: model.id,
+            name: model.name,
+            description: model.description
+        };
+        if (model.universeId) {
+            ws.universeId = model.universeId;
+        }
+        if (model.selectFields) {
+            ws.selectFields = model.selectFields.map(s => { return {
+                id: s.id,
+                name: s.name,
+                description: s.description,
+                objectType: s.objectType,
+                select: s.selectStatement,
+                where: s.whereStatement,
+                tableName: s.tableName,
+                referenceId: s.referenceId
+            } as IUniverseSelectionnableWebService});
+        }
+        if (model.rootComponent) {
+            ws.rootComponent = ReportComponentAdapter.generateWSFromModel(model.rootComponent);
+        }
+
+        return ws;
+    }
+
+    public static updateModel(model: ReportModel, attributes: IReportAttribute) {
+        model.name = attributes.name;
+        model.description = attributes.description;
+        
+        // Universe (create/update, delete)
+        /*
+        if (attributes.universe) {
+            model.universeId = attributes.universeId;
+        } else if (!model.universe) {
+            model.universeId = undefined;
+        }
+        */
+
+        // SelectFields (Update, create)
+        if (model.selectFields && attributes.selectFields) {
+            model.selectFields = ReportAdapter.updateSelectFieldModel(model.selectFields, attributes.selectFields);
+        } else if (attributes.selectFields) {
+
+        } else {
+            model.selectFields = undefined;
+        }
+
+        // Restriction
+    }
+
+    private static updateSelectFieldModel(models: BusinessObjectModel[], attributes: IBusinessObjectAttribute[]) {
+        
+        const newModels : BusinessObjectModel[] = [];
+
+        // Create and update field
+        for (var key in attributes) {
+            const attribute = attributes[key];
+            const modelLinked = models.find(m => { return m.id === attribute.id; });
+            if (!modelLinked) {
+                //BusinessObjectAdapter.createModel()
+            } else {
+                modelLinked.reportId = undefined;
+                newModels.push(modelLinked);
+                modelLinked.save();
+            }
+        }
+
+        return newModels;
     }
 
     private static instanciateDataGridFromModel(model: ReportDataGridModel) {

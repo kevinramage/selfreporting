@@ -1,13 +1,11 @@
 import * as winston from "winston";
-import { ICoreObject } from "../../types/coreObject";
 import { BusinessObjectModel } from "../../dataaccess/businessObject";
 import { IReportAttribute, ReportModel } from "../../dataaccess/report";
 import { CoreObject } from "./coreObject";
 import { ReportDataSource } from "./reportObjects/reportDataSource";
 import { Universe } from "./universe";
-import { IReport } from "../../types/report";
+import { IReportWebService } from "../../types/report";
 import { IReportResult } from "../../types/reportResult";
-import { IUniverseSelectionnable } from "../../types/universeSelectionnable";
 import { UniverseModel } from "../../dataaccess/universe";
 import { ReportGenerator } from "./reportObjects/reportGenerator";
 import { ConnectionModel } from "../../dataaccess/connection";
@@ -17,9 +15,10 @@ import { ReportComponentModel } from "../../dataaccess/reportComponent";
 import { ReportDataGridColumnModel } from "../../dataaccess/reportDataGridColumn";
 import { ReportAdapter } from "../../adapters/report";
 import { IReportRestrictionAttribute, ReportRestrictionModel } from "../../dataaccess/reportRestriction";
-import { UniverseJoin } from "./universeObjects/universeJoin";
 import { UniverseJoinModel } from "../../dataaccess/universeJoint";
 import { UniverseTableModel } from "../../dataaccess/universeTable";
+import { ICoreObjectWebService } from "../../types/coreObject";
+import { v4 } from "uuid";
 
 export class Report extends CoreObject {
     private _dataSource : ReportDataSource;
@@ -34,7 +33,83 @@ export class Report extends CoreObject {
         this._rootComponent = null;
     }
 
-    public create() {
+    public static getReports() {
+        winston.debug("Report.getReports");
+        return new Promise<ICoreObjectWebService[]>((resolve, reject) => {
+            ReportModel.findAll({ limit: 20 }).then((universes) => {
+                const data = universes.map(u => {
+                    return {
+                        id: u.id,
+                        name: u.name,
+                        description: u.description
+                    } as ICoreObjectWebService
+                })
+                resolve(data);
+            }).catch((err) => {
+                winston.error("Report.getReports - Internal error: ", err);
+                reject(err);
+            });
+        });
+    }
+
+    public static getReport(id: string) {
+        winston.debug("Report.getReport - Id: " + id);
+        return new Promise<IReportWebService|null>((resolve, reject) => {
+            ReportModel.findByPk(id, { include: [
+                { model: BusinessObjectModel, as: "selectFields" },
+                { model: ReportComponentModel, as: "rootComponent", include: [
+                    { model: ReportDataGridModel, as: "dataGrid", include: [
+                        { model: ReportDataGridColumnModel, as: "columns" }
+                    ]}
+                ] },
+                { model: ReportRestrictionModel, as: "restriction", include: [
+                    { model: BusinessObjectModel, as: "operand1" },
+                    { model: BusinessObjectModel, as: "operand2"}
+                ]}
+            ]}).then((report) => {
+                if (report) {
+                    resolve(ReportAdapter.generateWSFromModel(report));
+                } else {
+                    resolve(null);
+                }
+            }).catch((err) => {
+                winston.error("Universe.getUniverses - Internal error: ", err);
+                reject(err);
+            });
+        });
+    }
+
+    public static create(dataWS: IReportWebService) {
+        winston.debug("Report.create");
+        return new Promise<ReportModel>((resolve, reject) => {
+
+            // Generate unique identifiers
+            dataWS.id = v4();
+            if (dataWS.selectFields) {
+                dataWS.selectFields.forEach(s => { return s.id = v4(); })
+            }
+            if (dataWS.rootComponent) {
+                dataWS.rootComponent.id = v4();
+                dataWS.rootComponent.root.id = v4();
+                dataWS.rootComponent.root.columns.forEach(c => { return c.id = v4(); })
+            }
+
+            // Instanciate model from request body
+            const data = ReportAdapter.instanciateFromWebService(dataWS);
+
+            // Send query to database
+            ReportModel.create(data, {include: [
+                { model: BusinessObjectModel, as: "selectFields"}
+            ]}).then((reportData) => {
+                resolve(reportData);
+            }).catch((err) => {
+                winston.error("Report.create - Internal error: ", err);
+                reject(err);
+            });
+        });
+    }
+
+    public create2() {
         return new Promise<void>((resolve, reject) => {
             ReportModel.create(this.data, { include: [
                 { model: BusinessObjectModel, as: "selectFields"},
@@ -55,54 +130,47 @@ export class Report extends CoreObject {
         });
     }
 
-    public static getReports() {
-        return new Promise<ICoreObject[]>((resolve, reject) => {
-            ReportModel.findAll({ limit: 20 }).then((universes) => {
-                const data = universes.map(u => {
-                    return {
-                        id: u.id,
-                        name: u.name,
-                        description: u.description
-                    } as ICoreObject
-                })
-                resolve(data);
-            }).catch((err) => {
-                winston.error("Report.getReports - Internal error: ", err);
-                reject(err);
-            });
-        });
-    }
-
-    public static getReport(id: string) {
-        return new Promise<IReport|null>((resolve, reject) => {
+    public static update(id: string, data: IReportAttribute) {
+        winston.debug("Report.update - Id: " + id);
+        return new Promise<IReportAttribute|null>((resolve, reject) => {
             ReportModel.findByPk(id, { include: [
                 { model: BusinessObjectModel, as: "selectFields" },
                 { model: ReportComponentModel, as: "rootComponent", include: [
                     { model: ReportDataGridModel, as: "dataGrid", include: [
                         { model: ReportDataGridColumnModel, as: "columns" }
                     ]}
-                ] }
+                ] },
+                { model: ReportRestrictionModel, as: "restriction", include: [
+                    { model: BusinessObjectModel, as: "operand1" },
+                    { model: BusinessObjectModel, as: "operand2"}
+                ]}
             ]}).then((report) => {
-                let data : IReport | null = null;
                 if (report) {
-                    let fields : IUniverseSelectionnable[] = [];
-                    if (report.selectFields) {
-                        fields = Report.getBusinessObject(report.selectFields);
-                    }
-                    data = {
-                        id: report.id,
-                        name: report.name,
-                        description: report.description,
-                        selectFields: fields
-                    }
+                    ReportAdapter.updateModel(report, data);
+                    report.save({}).then((newReport) => {
+                        if (newReport.selectFields && newReport.selectFields.length > 0) {
+                            newReport.selectFields[0].reportId = undefined;
+                            newReport.selectFields[0].save().then(() => {
+                                resolve(null);
+                            })
+                        }
+                        else {
+                            resolve(null);
+                        }
+                    }).catch((err) => {
+                        winston.error("Report.update - Internal error: ", err);
+                        reject(err);
+                    });
+                } else {
+                    resolve(null);
                 }
-                resolve(data);
             }).catch((err) => {
-                winston.error("Universe.getUniverses - Internal error: ", err);
+                winston.error("Report.update - Internal error: ", err);
                 reject(err);
             });
         });
     }
+
 
     private static getBusinessObject(selectFields: BusinessObjectModel[]) {
         return selectFields.map(f => {
@@ -113,7 +181,8 @@ export class Report extends CoreObject {
                 objectType: f.objectType,
                 tableName: f.tableName,
                 select: f.selectStatement,
-                where: f.whereStatement
+                where: f.whereStatement,
+                referenceId: f.referenceId
             }
         })
     }

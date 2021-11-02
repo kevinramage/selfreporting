@@ -1,6 +1,10 @@
+import { UniverseClass } from "../business/core/universeObjects/universeClass";
 import { UniverseDimension } from "../business/core/universeObjects/universeDimension";
 import { UniverseMetric } from "../business/core/universeObjects/universeMetric";
-import { BusinessObjectModel, BUSINESSOBJECT_TYPE } from "../dataaccess/businessObject";
+import { BusinessObjectModel, BUSINESSOBJECT_TYPE, IBusinessObjectAttribute } from "../dataaccess/businessObject";
+import { IUniverseClass } from "../types/universeClass";
+import { IUniverseDimension } from "../types/universeDimension";
+import { IUniverseMetric } from "../types/universeMetric";
 
 export class BusinessObjectAdapter {
 
@@ -12,6 +16,48 @@ export class BusinessObjectAdapter {
         } else {
             throw new Error("BusinessObjectAdapter.instanciateFromModel - Invalid type: " + model.objectType);
         }
+    }
+
+    public static createModel(attributes: IBusinessObjectAttribute) {
+        if (attributes.objectType === BUSINESSOBJECT_TYPE.DIMENSION) {
+            
+        } else if (attributes.objectType === BUSINESSOBJECT_TYPE.METRIC) {
+
+        } else if (attributes.objectType === BUSINESSOBJECT_TYPE.CLASS) {
+
+        } else {
+            throw new Error("BusinessObjectAdapter.createModel");
+        }
+    }
+
+    private static createDimensionModel(attributes: IUniverseDimension) {
+        const universeDimension = new UniverseDimension(attributes.name, attributes.description);
+        universeDimension.select = attributes.select;
+        universeDimension.where = attributes.where;
+        universeDimension.tableName = attributes.tableName;
+        //universeDimension.referenceId = attributes.referenceId;
+        return universeDimension;
+    }
+
+    private static createMetricModel(attributes: IUniverseMetric) {
+        const universeMetric = new UniverseMetric(attributes.name, attributes.description);
+        universeMetric.select = attributes.select;
+        universeMetric.where = attributes.where;
+        universeMetric.tableName = attributes.tableName;
+        //universeMetric.referenceId = attributes.referenceId;
+        return universeMetric;
+    }
+
+    private static createClassModel(attributes: IUniverseClass) {
+        const universeMetric = new UniverseClass();
+        universeMetric.name = attributes.name
+        universeMetric.description = attributes.description;
+        //universeMetric.referenceId = attributes.referenceId;
+        return universeMetric;
+    }
+
+    public static updateModel(model: BusinessObjectModel, attributes: IBusinessObjectAttribute) {
+
     }
 
     public static instanciateDimensionFromModel(model: BusinessObjectModel) {

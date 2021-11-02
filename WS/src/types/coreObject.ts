@@ -1,4 +1,4 @@
-export interface ICoreObject {
+export interface ICoreObjectWebService {
     id: string;
     name: string;
     description: string;

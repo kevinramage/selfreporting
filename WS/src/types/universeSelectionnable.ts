@@ -1,5 +1,9 @@
 import { IUniverseObject } from "./universeObject";
 
-export interface IUniverseSelectionnable extends IUniverseObject {
-
+export interface IUniverseSelectionnableWebService extends IUniverseObject {
+    objectType: string;
+    tableName: string;
+    select: string;
+    where: string;
+    referenceId?: string;
 }

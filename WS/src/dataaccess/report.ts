@@ -24,7 +24,7 @@ export class ReportModel extends Model<IReportAttribute, IReportCreationAttribut
   public name!: string;
   public description!: string;
   public universeId ?: string;
-  public readonly selectFields ?: BusinessObjectModel[];
+  public selectFields ?: BusinessObjectModel[];
   public readonly universe ?: UniverseModel;
   public readonly rootComponent ?: ReportComponentModel;
   public readonly restriction ?: ReportRestrictionModel;

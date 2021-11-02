@@ -1,5 +1,5 @@
-import { ICoreObject } from "./coreObject";
+import { ICoreObjectWebService } from "./coreObject";
 
-export interface IUniverseObject extends ICoreObject {
+export interface IUniverseObject extends ICoreObjectWebService {
 
 }

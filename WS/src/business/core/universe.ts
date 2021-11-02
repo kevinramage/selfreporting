@@ -8,7 +8,7 @@ import { BusinessLayer } from "./universeObjects/businessLayer";
 import { DataLayer } from "./universeObjects/dataLayer";
 import { Version } from "./version";
 import { IUniverse } from "../../types/universe"
-import { ICoreObject } from "../../types/coreObject";
+import { ICoreObjectWebService } from "../../types/coreObject";
 import { IUniverseColumn } from "../../types/universeColumn";
 import { IUniverseTable } from "../../types/universeTable";
 import { IUniverseClass } from "../../types/universeClass";
@@ -55,14 +55,14 @@ export class Universe extends CoreObject {
     }
 
     public static getUniverses() {
-        return new Promise<ICoreObject[]>((resolve, reject) => {
+        return new Promise<ICoreObjectWebService[]>((resolve, reject) => {
             UniverseModel.findAll({ limit: 20 }).then((universes) => {
                 const data = universes.map(u => {
                     return {
                         id: u.id,
                         name: u.name,
                         description: u.description
-                    } as ICoreObject
+                    } as ICoreObjectWebService
                 })
                 resolve(data);
             }).catch((err) => {

@@ -1,5 +1,5 @@
 import { Universe } from "../business/core/universe";
-import { UniverseModel } from "../dataaccess/universe";
+import { IUniverseAttribute, UniverseModel } from "../dataaccess/universe";
 import { ConnectionAdapter } from "./connection";
 import { JoinAdapter } from "./join";
 
