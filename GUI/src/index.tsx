@@ -6,7 +6,7 @@ import { ReportEditor } from './component/ReportEditor';
 
 ReactDOM.render(
   <React.StrictMode>
-    <ReportEditor />
+    <ReportEditor reportId="2d195982-8e4e-4e02-87c8-02782e784aba" />
   </React.StrictMode>,
   document.getElementById('root')
 );

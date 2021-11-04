@@ -1,0 +1,38 @@
+.componentSelection {
+    width: 800px;
+    height: 300px;
+}
+
+.filters {
+    background: #EEE;
+    width: 200px;
+    height: 280px;
+    border-right: solid 1px #CCC;
+    float: left;
+}
+
+.content {
+    background: #DDD;
+    width: 600px;
+    height: 280px;
+    margin-left: 200px;
+}
+
+.content > div {
+    overflow-y: visible;
+    height: 280px;
+    padding: 10px;
+}
+
+.content img {
+    width: 120px;
+    height: 75px;
+}
+
+.MuiImageListItemBar-root {
+    height: 20px;
+}
+
+.ListItemBar .MuiImageListItemBar-title {
+    font-size: 12px;
+}

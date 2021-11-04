@@ -11,7 +11,7 @@ export class UniverseService {
     public static loadAll() {
         return new Promise<IUniverse[]>((resolve, reject) => {
             axios.get("http://localhost:7000/universe").then((resp: AxiosResponse) => {
-                resolve(resp.data as IUniverse[]);
+                resolve(resp.data.data as IUniverse[]);
             }).catch((err) => {
                 reject(err);
             });
@@ -26,7 +26,7 @@ export class UniverseService {
         return new Promise<IUniverse>((resolve, reject) => {
             const url = format("http://localhost:7000/universe/%s", universeId);
             axios.get(url).then((resp: AxiosResponse) => {
-                resolve(resp.data as IUniverse);
+                resolve(resp.data.data as IUniverse);
             }).catch((err) => {
                 reject(err);
             });

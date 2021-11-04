@@ -6,7 +6,7 @@
 .actionBar {
     position: absolute;
     background: #DDD;
-    width: 200px;
+    width: 400px;
     display: block;
     top: 0px;
     left: 0px;
@@ -16,8 +16,12 @@
 .contentBar {
     position: absolute;
     background: #EEE;
-    left: 200px;
+    left: 400px;
     top: 0px;
     bottom: 0px;
     right: 0px;
+}
+
+.divider {
+    height: 40px;
 }
