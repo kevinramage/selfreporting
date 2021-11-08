@@ -70,19 +70,19 @@ export class LinkProperties extends Component<LinkPropertiesProps, LinkPropertie
                 </div>
                 <div>
                     <Typography className="propertyLabel">FontSize: </Typography>
-                    <input value={fontSize} onChange={this.onFontSizeChanged} />
+                    <input value={fontSize} type="number" min="8" max="50" step="1" onChange={this.onFontSizeChanged} />
                 </div>
                 <div>
                     <Typography className="propertyLabel">Color: </Typography>
-                    <input value={color} onChange={this.onColorChanged} />
+                    <input value={color} type="color" onChange={this.onColorChanged} />
                 </div>
                 <div>
                     <Typography className="propertyLabel">Left: </Typography>
-                    <input value={left} onChange={this.onLeftChanged} />
+                    <input value={left} type="number" min="0" step="5" onChange={this.onLeftChanged} />
                 </div>
                 <div>
                     <Typography className="propertyLabel">Top: </Typography>
-                    <input value={top} onChange={this.onTopChanged} />
+                    <input value={top} type="number" min="0" step="5" onChange={this.onTopChanged} />
                 </div>
             </div>
         )

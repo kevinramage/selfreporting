@@ -1,30 +1,31 @@
 import { Typography } from "@material-ui/core";
 import { ChangeEvent, Component } from "react";
 import { IDataSource } from "../../types/dataSource";
-import { ILineChart, IReportComponent } from "../../types/reportComponent";
+import { IAreaChart, IReportComponent } from "../../types/reportComponent";
 import { DataSouceMapping } from "../DataSourceMapping";
 import { onComponentChangeListener } from "../ReportOptions";
 
-import "./LineChartProperties.css"
+import "./AreaChartProperties.css"
 
-type LineChartPropertiesProps = {
-    component: ILineChart,
+type AreaChartPropertiesProps = {
+    component: IAreaChart,
     dataSources: IDataSource[],
     componentChangeListener: onComponentChangeListener;
 }
-type LineChartPropertiesState = {
-    component: ILineChart,
+type AreaChartPropertiesState = {
+    component: IAreaChart,
     dataSources: IDataSource[],
     widthText: string,
     heightText: string,
     leftText: string,
     topText: string,
+    strokeWidthText: string,
     componentChangeListener: onComponentChangeListener;
 };
 
-export class LineChartProperties extends Component<LineChartPropertiesProps, LineChartPropertiesState> {
+export class AreaChartProperties extends Component<AreaChartPropertiesProps, AreaChartPropertiesState> {
 
-    constructor(props: LineChartPropertiesProps) {
+    constructor(props: AreaChartPropertiesProps) {
         super(props);
         this.state = { 
             component: props.component,
@@ -33,16 +34,18 @@ export class LineChartProperties extends Component<LineChartPropertiesProps, Lin
             heightText: props.component.height ? props.component.height + "" : "",
             leftText: props.component.left ? props.component.left + "" : "",
             topText: props.component.top ? props.component.top + "" : "",
-            componentChangeListener: props.componentChangeListener 
+            strokeWidthText: props.component.strokeWidth ? props.component.strokeWidth + "" : "",
+            componentChangeListener: props.componentChangeListener
         };
 
         this.onNameChanged = this.onNameChanged.bind(this);
+        this.onTitleChanged = this.onTitleChanged.bind(this);
         this.onXAxisLabelChanged = this.onXAxisLabelChanged.bind(this);
         this.onYAxisLabelChanged = this.onYAxisLabelChanged.bind(this);
-        this.onTooltipEnabledChanged = this.onTooltipEnabledChanged.bind(this);
-        this.onHorizontalGridEnabledChanged = this.onHorizontalGridEnabledChanged.bind(this);
-        this.onVerticaEnabledChanged = this.onVerticaEnabledChanged.bind(this);
-        this.onStrikeColorChanged = this.onStrikeColorChanged.bind(this);
+        this.onStrokeColorChanged = this.onStrokeColorChanged.bind(this);
+        this.onStrokeWidthChanged = this.onStrokeWidthChanged.bind(this);
+        this.onGradientStartChanged = this.onGradientStartChanged.bind(this);
+        this.onGradientEndChanged = this.onGradientEndChanged.bind(this);
         this.onWidthChanged = this.onWidthChanged.bind(this);
         this.onHeightChanged = this.onHeightChanged.bind(this);
         this.onLeftChanged = this.onLeftChanged.bind(this);
@@ -52,10 +55,10 @@ export class LineChartProperties extends Component<LineChartPropertiesProps, Lin
 
     render() {
         const { component, dataSources, widthText, heightText, leftText, topText } = this.state;
-        const tooltipEnabled = component.tooltipEnabled ? component.tooltipEnabled : false;
-        const horizontalGridEnabled = component.horizontalGridEnabled ? component.horizontalGridEnabled : false;
-        const verticalGridEnabled = component.verticalGridEnabled ? component.verticalGridEnabled : false;
-        const strikeColor = component.strikeColor ? component.strikeColor : "";
+        const strokeColor = component.strokeColor ? component.strokeColor : "";
+        const strokeWidth = component.strokeWidth ? component.strokeWidth : 2;
+        const gradientStart = component.gradientStart ? component.gradientStart : "";
+        const gradientEnd = component.gradientEnd ? component.gradientEnd : "";
         return (
             <div>
                 <div>
@@ -65,6 +68,10 @@ export class LineChartProperties extends Component<LineChartPropertiesProps, Lin
                 <div>
                     <Typography className="propertyLabel">Type: </Typography>
                     <input value={component.type} disabled readOnly/>
+                </div>
+                <div>
+                    <Typography className="propertyLabel">Title: </Typography>
+                    <input value={component.title} onChange={this.onTitleChanged}/>
                 </div>
                 <div>
                     <Typography className="propertyLabel">X Axis Key: </Typography>
@@ -85,20 +92,20 @@ export class LineChartProperties extends Component<LineChartPropertiesProps, Lin
                     <input value={component.dataAxisLabel} onChange={this.onYAxisLabelChanged} />
                 </div>
                 <div>
-                    <Typography className="propertyLabel">TooltipEnabled: </Typography>
-                    <input checked={tooltipEnabled} type="checkbox" onChange={this.onTooltipEnabledChanged} />
+                    <Typography className="propertyLabel">Stroke color: </Typography>
+                    <input value={strokeColor} type="color" onChange={this.onStrokeColorChanged} />
                 </div>
                 <div>
-                    <Typography className="propertyLabel">horizontalGridEnabled: </Typography>
-                    <input checked={horizontalGridEnabled} type="checkbox" onChange={this.onHorizontalGridEnabledChanged} />
+                    <Typography className="propertyLabel">Stroke width: </Typography>
+                    <input value={strokeWidth} type="number" onChange={this.onStrokeWidthChanged} />
                 </div>
                 <div>
-                    <Typography className="propertyLabel">verticalGridEnabled: </Typography>
-                    <input checked={verticalGridEnabled} type="checkbox" onChange={this.onVerticaEnabledChanged} />
+                    <Typography className="propertyLabel">Gradient start: </Typography>
+                    <input value={gradientStart} type="color" onChange={this.onGradientStartChanged} />
                 </div>
                 <div>
-                    <Typography className="propertyLabel">strikeColor: </Typography>
-                    <input value={strikeColor} type="color" onChange={this.onStrikeColorChanged} />
+                    <Typography className="propertyLabel">Gradient end: </Typography>
+                    <input value={gradientEnd} type="color" onChange={this.onGradientEndChanged} />
                 </div>
                 <div>
                     <Typography className="propertyLabel">Width: </Typography>
@@ -121,86 +128,94 @@ export class LineChartProperties extends Component<LineChartPropertiesProps, Lin
     }
 
     onNameChanged(e: ChangeEvent<HTMLInputElement>) {
-        const lineChart = this.state.component;
-        lineChart.name = e.target.value;
-        this.setState({component: lineChart});
-        this.state.componentChangeListener(lineChart);
+        const areaChart = this.state.component;
+        areaChart.name = e.target.value;
+        this.setState({component: areaChart});
+        this.state.componentChangeListener(areaChart);
+    }
+    onTitleChanged(e: ChangeEvent<HTMLInputElement>) {
+        const areaChart = this.state.component;
+        areaChart.title = e.target.value;
+        this.setState({component: areaChart});
+        this.state.componentChangeListener(areaChart);
     }
     onXAxisLabelChanged(e: ChangeEvent<HTMLInputElement>) {
-        const lineChart = this.state.component;
-        lineChart.nameAxisLabel = e.target.value;
-        this.setState({component: lineChart});
-        this.state.componentChangeListener(lineChart);
+        const areaChart = this.state.component;
+        areaChart.nameAxisKey = e.target.value;
+        this.setState({component: areaChart});
+        this.state.componentChangeListener(areaChart);
     }
     onYAxisLabelChanged(e: ChangeEvent<HTMLInputElement>) {
-        const lineChart = this.state.component;
-        lineChart.dataAxisLabel = e.target.value;
-        this.setState({component: lineChart});
-        this.state.componentChangeListener(lineChart);
+        const areaChart = this.state.component;
+        areaChart.dataAxisKey = e.target.value;
+        this.setState({component: areaChart});
+        this.state.componentChangeListener(areaChart);
     }
-    
-    onTooltipEnabledChanged(e: ChangeEvent<HTMLInputElement>) {
-        const lineChart = this.state.component;
-        lineChart.tooltipEnabled = e.target.checked;
-        this.setState({component: lineChart});
-        this.state.componentChangeListener(lineChart);
+    onStrokeColorChanged(e: ChangeEvent<HTMLInputElement>) {
+        const areaChart = this.state.component;
+        areaChart.strokeColor = e.target.value;
+        this.setState({component: areaChart});
+        this.state.componentChangeListener(areaChart);
     }
-    onHorizontalGridEnabledChanged(e: ChangeEvent<HTMLInputElement>) {
-        const lineChart = this.state.component;
-        lineChart.horizontalGridEnabled = e.target.checked;
-        this.setState({component: lineChart});
-        this.state.componentChangeListener(lineChart);
+    onStrokeWidthChanged(e: ChangeEvent<HTMLInputElement>) {
+        const value = Number.parseInt(e.target.value);
+        if (!isNaN(value)) {
+            const areaChart = this.state.component;
+            areaChart.strokeWidth = value;
+            this.setState({component: areaChart});
+            this.state.componentChangeListener(areaChart);
+        }
+        this.setState({ strokeWidthText: e.target.value })
     }
-    onVerticaEnabledChanged(e: ChangeEvent<HTMLInputElement>) {
-        const lineChart = this.state.component;
-        lineChart.verticalGridEnabled = e.target.checked;
-        this.setState({component: lineChart});
-        this.state.componentChangeListener(lineChart);
+    onGradientStartChanged(e: ChangeEvent<HTMLInputElement>) {
+        const areaChart = this.state.component;
+        areaChart.gradientStart = e.target.value;
+        this.setState({component: areaChart});
+        this.state.componentChangeListener(areaChart);
     }
-
-    onStrikeColorChanged(e: ChangeEvent<HTMLInputElement>) {
-        const lineChart = this.state.component;
-        lineChart.strikeColor = e.target.value;
-        this.setState({component: lineChart});
-        this.state.componentChangeListener(lineChart);
+    onGradientEndChanged(e: ChangeEvent<HTMLInputElement>) {
+        const areaChart = this.state.component;
+        areaChart.gradientEnd = e.target.value;
+        this.setState({component: areaChart});
+        this.state.componentChangeListener(areaChart);
     }
     onWidthChanged(e: ChangeEvent<HTMLInputElement>) {
         const value = Number.parseInt(e.target.value);
         if (!isNaN(value)) {
-            const lineChart = this.state.component;
-            lineChart.width = value;
-            this.setState({component: lineChart});
-            this.state.componentChangeListener(lineChart);
+            const areaChart = this.state.component;
+            areaChart.width = value;
+            this.setState({component: areaChart});
+            this.state.componentChangeListener(areaChart);
         }
         this.setState({ widthText: e.target.value });
     }
     onHeightChanged(e: ChangeEvent<HTMLInputElement>) {
         const value = Number.parseInt(e.target.value);
         if (!isNaN(value)) {
-            const lineChart = this.state.component;
-            lineChart.height = value;
-            this.setState({component: lineChart});
-            this.state.componentChangeListener(lineChart);
+            const areaChart = this.state.component;
+            areaChart.height = value;
+            this.setState({component: areaChart});
+            this.state.componentChangeListener(areaChart);
         }
         this.setState({heightText: e.target.value});
     }
     onLeftChanged(e: ChangeEvent<HTMLInputElement>) {
         const value = Number.parseInt(e.target.value);
         if (!isNaN(value)) {
-            const lineChart = this.state.component;
-            lineChart.left = value;
-            this.setState({component: lineChart});
-            this.state.componentChangeListener(lineChart);
+            const areaChart = this.state.component;
+            areaChart.left = value;
+            this.setState({component: areaChart});
+            this.state.componentChangeListener(areaChart);
         }
         this.setState({leftText: e.target.value})
     }
     onTopChanged(e: ChangeEvent<HTMLInputElement>) {
         const value = Number.parseInt(e.target.value);
         if (!isNaN(value)) {
-            const lineChart = this.state.component;
-            lineChart.top = value;
-            this.setState({component: lineChart});
-            this.state.componentChangeListener(lineChart);
+            const areaChart = this.state.component;
+            areaChart.top = value;
+            this.setState({component: areaChart});
+            this.state.componentChangeListener(areaChart);
         }
         this.setState({topText: e.target.value})
     }

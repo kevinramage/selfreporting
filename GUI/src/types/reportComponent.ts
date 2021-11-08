@@ -3,9 +3,12 @@ export interface IReportComponent {
     type: string;
 }
 
-export interface IDataGrid extends IReportComponent {
+export interface IDataComponent extends IReportComponent {
+    data?: any[];
+}
+
+export interface IDataGrid extends IDataComponent {
     columns: IDataGridColumn[];
-    rows?: any[];
     pageSize?: number;
     rowPerPage?: number;
     top ?: number;
@@ -41,13 +44,9 @@ export interface ILink extends ILabel {
     reference: string;
 }
 
-export interface ILineChart extends IReportComponent {
+export interface ILineChart extends IDoubleAxisComponent {
     width?: number;
     height?: number;
-    xAxisKey: string;
-    yAxisKey: string;
-    xAxisLabel: string;
-    yAxisLabel: string;
     tooltipEnabled?: boolean
     horizontalGridEnabled?: boolean;
     verticalGridEnabled?: boolean;
@@ -62,9 +61,7 @@ export interface IStack extends IReportComponent {
     subObject: IReportComponent[];
 }
 
-export interface IAreaChart extends IReportComponent {
-    xAxisLabel: string;
-    yAxisLabel: string;
+export interface IAreaChart extends IDoubleAxisComponent {
     title ?: string;
     strokeColor ?: string;
     strokeWidth ?: number;
@@ -77,46 +74,33 @@ export interface IAreaChart extends IReportComponent {
     top ?: number;
 }
 
-export interface IBarChart extends IReportComponent {
-    xAxisLabel: string;
-    yAxisLabel: string;
+export interface IBarChart extends IDoubleAxisComponent {
     fillColor ?: string;
     width ?: number;
     height ?: number;
-    data ?: any[];
     left ?: number;
     top ?: number;
 }
 
-export interface IScatterChart extends IReportComponent {
-    xAxisKey: string;
-    xAxisLabel: string;
-    xAxisUnit?: string;
-    yAxisKey: string;
-    yAxisLabel: string;
-    yAxisUnit?: string;
+export interface IScatterChart extends IDoubleAxisComponent {
     title ?: string;
+    nameAxisUnit ?: string;
+    dataAxisUnit ?: string;
     fillColor ?: string;
     width ?: number;
     height ?: number;
-    data ?: any[];
     left ?: number;
     top ?: number;
 }
 
-export interface IPieChart extends IReportComponent {
-    nameAxisKey: string;
-    dataAxisKey: string;
+export interface IPieChart extends IDoubleAxisComponent {
     width ?: number;
     height ?: number;
-    data ?: any[];
     left ?: number;
     top ?: number;
 }
 
-export interface IRadarChart extends IReportComponent {
-    angleAxisLabel: string;
-    dataAxisLabel: string;
+export interface IRadarChart extends IDoubleAxisComponent {
     title ?: string;
     fillColor ?: string;
     strokeColor ?: string;
@@ -127,9 +111,7 @@ export interface IRadarChart extends IReportComponent {
     top ?: number;
 }
 
-export interface IRadialBarChart extends IReportComponent {
-    nameAxisKey: string;
-    dataAxisKey: string;
+export interface IRadialBarChart extends IDoubleAxisComponent {
     width ?: number;
     height ?: number;
     data ?: any[];
@@ -137,15 +119,20 @@ export interface IRadialBarChart extends IReportComponent {
     top ?: number;
 }
 
-export interface ITreeMap extends IReportComponent {
-    nameAxisKey: string;
-    dataAxisKey: string;
+export interface ITreeMap extends IDoubleAxisComponent {
     title ?: string;
     width ?: number;
     height ?: number;
     data ?: any[];
     left ?: number;
     top ?: number;
+}
+
+export interface IDoubleAxisComponent extends IDataComponent {
+    nameAxisKey: string;
+    dataAxisKey: string;
+    nameAxisLabel: string;
+    dataAxisLabel: string;
 }
 
 export module COMPONENT_TYPE {

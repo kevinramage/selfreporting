@@ -56,15 +56,15 @@ export class RatingProperties extends Component<RatingPropertiesProps, RatingPro
                 </div>
                 <div>
                     <Typography className="propertyLabel">Rating: </Typography>
-                    <input value={ratingText} onChange={this.onRatingChanged} />
+                    <input value={ratingText} type="number" min="0" max="5" onChange={this.onRatingChanged} />
                 </div>
                 <div>
                     <Typography className="propertyLabel">Left: </Typography>
-                    <input value={left} onChange={this.onLeftChanged} />
+                    <input value={left} type="number" min="0" step="5" onChange={this.onLeftChanged} />
                 </div>
                 <div>
                     <Typography className="propertyLabel">Top: </Typography>
-                    <input value={top} onChange={this.onTopChanged} />
+                    <input value={top} type="number" min="0" step="5" onChange={this.onTopChanged} />
                 </div>
             </div>
         )

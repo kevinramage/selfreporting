@@ -64,23 +64,23 @@ export class DataGridProperties extends Component<DataGridPropertiesProps, DataG
                 </div>
                 <div>
                     <Typography className="propertyLabel">RowPerPage: </Typography>
-                    <input value={rowPerPage} onChange={this.onRowPerPageChanged} />
+                    <input value={rowPerPage} type="number" min="1" max="100" onChange={this.onRowPerPageChanged} />
                 </div>
                 <div>
                     <Typography className="propertyLabel">Width: </Typography>
-                    <input value={width} onChange={this.onWidthChanged} />
+                    <input value={width} type="number" min="0" step="5" onChange={this.onWidthChanged} />
                 </div>
                 <div>
                     <Typography className="propertyLabel">Height: </Typography>
-                    <input value={height} onChange={this.onHeightChanged} />
+                    <input value={height} type="number" min="0" step="5" onChange={this.onHeightChanged} />
                 </div>
                 <div>
                     <Typography className="propertyLabel">Left: </Typography>
-                    <input value={left} onChange={this.onLeftChanged} />
+                    <input value={left} type="number" min="0" step="5" onChange={this.onLeftChanged} />
                 </div>
                 <div>
                     <Typography className="propertyLabel">Top: </Typography>
-                    <input value={top} onChange={this.onTopChanged} />
+                    <input value={top} type="number" min="0" step="5" onChange={this.onTopChanged} />
                 </div>
             </div>
         )

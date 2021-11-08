@@ -10,7 +10,7 @@ import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import TreeView from '@mui/lab/TreeView';
 import TreeItem from '@mui/lab/TreeItem';
-import { COMPONENT_TYPE, IDataGrid, ILabel, ILineChart, ILink, IRating, IReportComponent } from "../types/reportComponent";
+import { COMPONENT_TYPE, IAreaChart, IBarChart, IDataGrid, ILabel, ILineChart, ILink, IPieChart, IRadarChart, IRadialBarChart, IRating, IReportComponent, IScatterChart, ITreeMap } from "../types/reportComponent";
 import { ComponentSelection } from "./ComponentSelection";
 import { LabelProperties } from "./dataComponent/LabelProperties";
 import { RatingProperties } from "./dataComponent/RatingProperties";
@@ -19,16 +19,26 @@ import { LineChartProperties } from "./dataComponent/LineChartProperties";
 import { DataGridProperties } from "./dataComponent/DataGridProperties";
 
 import "./ReportOptions.css";
+import { IDataSource } from "../types/dataSource";
+import { IReport } from "../types/report";
+import { AreaChartProperties } from "./dataComponent/AreaChartProperties";
+import { BarChartProperties } from "./dataComponent/BarChartProperties";
+import { ScatterChartProperties } from "./dataComponent/ScatterChartProperties";
+import { PieChartProperties } from "./dataComponent/PieChartProperties";
+import { RadarChartProperties } from "./dataComponent/RadarChartProperties";
+import { RadialChartProperties } from "./dataComponent/RadialChartProperties";
+import { TreeMapProperties } from "./dataComponent/TreeMapProperties";
 
 
 export type onComponentChangeListener = (component: IReportComponent|null) => void;
 
 type ReportOptionsProps = {
-    reportComponent: IReportComponent | null;
+    report: IReport;
     componentChangeListener: onComponentChangeListener;
 };
 type ReportOptionsState = {
     reportComponent: IReportComponent | null;
+    dataSources: IDataSource[];
     isOpenCreateComponent: boolean;
     isOpenUpdateComponent: boolean;
     isStructureExpanded: boolean;
@@ -41,7 +51,8 @@ export class ReportOptions extends Component<ReportOptionsProps, ReportOptionsSt
     constructor(props: ReportOptionsProps) {
         super(props);
         this.state = { 
-            reportComponent: props.reportComponent,
+            reportComponent: props.report.rootComponent,
+            dataSources: props.report.dataSources,
             isOpenCreateComponent: false,
             isOpenUpdateComponent: false,
             isStructureExpanded: true,
@@ -210,6 +221,20 @@ export class ReportOptions extends Component<ReportOptionsProps, ReportOptionsSt
                     return this.renderDataGridProperties(component as IDataGrid);
                 case COMPONENT_TYPE.LINECHART:
                     return this.renderLineChartProperties(component as ILineChart);
+                case COMPONENT_TYPE.AREACHART:
+                    return this.renderAreaChartProperties(component as IAreaChart);
+                case COMPONENT_TYPE.BARCHART:
+                    return this.renderBarChartProperties(component as IBarChart);
+                case COMPONENT_TYPE.SCATTERCHART:
+                    return this.renderScatterChartProperties(component as IScatterChart);
+                case COMPONENT_TYPE.PIECHART:
+                    return this.renderPieChartProperties(component as IPieChart);
+                case COMPONENT_TYPE.RADARCHART:
+                    return this.renderRadarChartProperties(component as IRadarChart);
+                case COMPONENT_TYPE.RADIALBARCHART:
+                    return this.renderRadialChartProperties(component as IRadarChart);
+                case COMPONENT_TYPE.TREEMAP:
+                    return this.renderTreeMapProperties(component as ITreeMap);
             }
             return null;
         } else {
@@ -243,7 +268,49 @@ export class ReportOptions extends Component<ReportOptionsProps, ReportOptionsSt
 
     renderLineChartProperties(lineChart: ILineChart) {
         return (
-            <LineChartProperties component={lineChart} componentChangeListener={this.notifyComponentChanges} />
+            <LineChartProperties component={lineChart} dataSources={this.state.dataSources} componentChangeListener={this.notifyComponentChanges} />
+        )
+    }
+
+    renderAreaChartProperties(areaChart: IAreaChart) {
+        return (
+            <AreaChartProperties component={areaChart} dataSources={this.state.dataSources} componentChangeListener={this.notifyComponentChanges} />
+        )
+    }
+
+    renderBarChartProperties(barChart: IBarChart) {
+        return (
+            <BarChartProperties component={barChart} dataSources={this.state.dataSources} componentChangeListener={this.notifyComponentChanges} />
+        )
+    }
+
+    renderScatterChartProperties(scatterChart: IScatterChart) {
+        return (
+            <ScatterChartProperties component={scatterChart} dataSources={this.state.dataSources} componentChangeListener={this.notifyComponentChanges} />
+        )
+    }
+
+    renderPieChartProperties(pieChart: IPieChart) {
+        return (
+            <PieChartProperties component={pieChart} dataSources={this.state.dataSources} componentChangeListener={this.notifyComponentChanges} />
+        )
+    }
+
+    renderRadarChartProperties(radarChart: IRadarChart) {
+        return (
+            <RadarChartProperties component={radarChart} dataSources={this.state.dataSources} componentChangeListener={this.notifyComponentChanges} />
+        )
+    }
+
+    renderRadialChartProperties(radialBarChart: IRadialBarChart) {
+        return (
+            <RadialChartProperties component={radialBarChart} dataSources={this.state.dataSources} componentChangeListener={this.notifyComponentChanges} />
+        )
+    }
+
+    renderTreeMapProperties(treeMap: ITreeMap) {
+        return (
+            <TreeMapProperties component={treeMap} dataSources={this.state.dataSources} componentChangeListener={this.notifyComponentChanges} />
         )
     }
 

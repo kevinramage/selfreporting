@@ -75,6 +75,7 @@ export class ReportPresentation extends Component<ReportPresentationProps,Report
         
         // Update component (Properties)
         else if (nextPropsType === statePropsType && nextPropsType !== undefined) {
+
             const isStateUpToDate = this.shallowEqual(this.state.reportComponent, nextProps.reportComponent);
             if (!isStateUpToDate) {
                 const target = Object.assign({}, nextProps.reportComponent);
@@ -182,7 +183,7 @@ export class ReportPresentation extends Component<ReportPresentationProps,Report
     }
 
     private renderDataGrid(component: IDataGrid) {
-        let rows = component.rows;
+        let rows = component.data;
         const columns = this.getDataGridColumn(component);
         const left = component.left || 0;
         const top = component.top || 0;
@@ -247,8 +248,13 @@ export class ReportPresentation extends Component<ReportPresentationProps,Report
         const tooltipEnabled = component.tooltipEnabled || true;
         const horizontalGridEnabled = component.tooltipEnabled || false;
         const verticalGridEnabled = component.verticalGridEnabled || false;
+        let nameAxisKey = component.nameAxisKey;
+        let dataAxisKey = component.dataAxisKey;
         let data = component.data;
-        if (!data) {
+        if (data) {
+            nameAxisKey = this.updateComponentAxis(component.nameAxisKey);
+            dataAxisKey = this.updateComponentAxis(component.dataAxisKey);
+        } else {
             data = this.generateLineChartFakeData(component);
         }
 
@@ -273,10 +279,10 @@ export class ReportPresentation extends Component<ReportPresentationProps,Report
             <LineChart width={width} height={height} data={data} margin={{ left: left, top: top }}>
             
             <CartesianGrid horizontal={horizontalGridEnabled} vertical={verticalGridEnabled} />
-            <XAxis domain={['auto', 'auto']} dataKey={component.xAxisKey} label={component.xAxisLabel} />
-            <YAxis domain={['auto', 'auto']} label={component.yAxisLabel} />
+            <XAxis domain={['auto', 'auto']} dataKey={nameAxisKey} label={component.nameAxisLabel} />
+            <YAxis domain={['auto', 'auto']} label={component.dataAxisLabel} />
             { tooltip }
-            <Line dataKey={component.yAxisKey} stroke={strikeColor} dot={false} />
+            <Line dataKey={dataAxisKey} stroke={strikeColor} dot={false} />
             
             </LineChart>
         )
@@ -287,15 +293,23 @@ export class ReportPresentation extends Component<ReportPresentationProps,Report
         for (var i = 0; i < 10; i++) {
             const number = Math.trunc(Math.random() * 100);
             const obj : {[key: string]: number} = {};
-            obj[component.xAxisKey] = (i+1);
-            obj[component.yAxisKey] = number;
+            obj[component.nameAxisKey] = (i+1);
+            obj[component.dataAxisKey] = number;
             data.push(obj);
         }
         return data;
     }
 
+    private updateComponentAxis(axis: string) {
+        if (axis.startsWith("{") && axis.endsWith("}")) {
+            return axis.substr(1, axis.length - 2).split(".")[1];
+        } else {
+            return axis;
+        }
+    }
+
     private renderAreaChart(component: IAreaChart) {
-        const data : any[] = this.generateAreaChartFakeData(component);
+        let data = component.data;
         const strokeColor = component.strokeColor ? component.strokeColor : "#0088FE";
         const strokeWidth = component.strokeWidth ? component.strokeWidth : 2;
         const gradientStart = component.gradientStart ? component.gradientStart : "rgba(0, 136, 254, 0.8)";
@@ -304,6 +318,15 @@ export class ReportPresentation extends Component<ReportPresentationProps,Report
         const height = component.height ? component.height : 400;
         const top = component.top ? component.top : 0;
         const left = component.left ? component.left : 0;
+        let nameAxisKey = component.nameAxisKey; 
+        let dataAxisKey = component.dataAxisKey;
+        if (data) {
+            nameAxisKey = this.updateComponentAxis(component.nameAxisKey);
+            dataAxisKey = this.updateComponentAxis(component.dataAxisKey);
+        } else {
+            data = this.generateAreaChartFakeData(component)
+        }
+
         return (
             <AreaChart width={width} height={height} data={data} margin={{ top: top, left: left }}>
             <defs>
@@ -312,12 +335,12 @@ export class ReportPresentation extends Component<ReportPresentationProps,Report
                 <stop offset="95%" stopColor={gradientEnd} />
               </linearGradient>
             </defs>
-            <XAxis dataKey={component.xAxisLabel}>
+            <XAxis dataKey={nameAxisKey} label={component.nameAxisLabel}>
               { component.title ? ( <Label position="insideBottom" value={component.title} /> ) : null}
             </XAxis>
             <YAxis />
             <Tooltip />
-            <Area type="monotone" dataKey={component.yAxisLabel} stroke={strokeColor} strokeWidth={strokeWidth} fillOpacity="1" fill="url(#MyGradient)" dot />
+            <Area type="monotone" dataKey={dataAxisKey} label={component.dataAxisLabel} stroke={strokeColor} strokeWidth={strokeWidth} fillOpacity="1" fill="url(#MyGradient)" dot />
           </AreaChart>
         )
     }
@@ -326,26 +349,35 @@ export class ReportPresentation extends Component<ReportPresentationProps,Report
         const data = [];
         for (var i = 0; i < 10; i++) {
             const obj : {[key: string]: number} = {};
-            obj[component.xAxisLabel] = Math.trunc(Math.random() * 30);
-            obj[component.yAxisLabel] = Math.trunc(Math.random() * 30);
+            obj[component.nameAxisKey] = Math.trunc(Math.random() * 30);
+            obj[component.dataAxisKey] = Math.trunc(Math.random() * 30);
             data.push(obj);
         }
         return data;
     }
 
     private renderBarChart(component: IBarChart) {
-        const data : any[] = this.generateBarChartFakeData(component);
         const width = component.width ? component.width : 400;
         const height = component.height ? component.height : 400;
         const top = component.top ? component.top : 0;
         const left = component.left ? component.left : 0;
         const fillColor = component.fillColor ? component.fillColor : "#387908";
+        let nameAxisKey = component.nameAxisKey;
+        let dataAxisKey = component.dataAxisKey;
+        let data = component.data;
+        if (data) {
+            nameAxisKey = this.updateComponentAxis(component.nameAxisKey);
+            dataAxisKey = this.updateComponentAxis(component.dataAxisKey);
+        } else {
+            data = this.generateBarChartFakeData(component);
+        }
+
         return ( 
         <BarChart width={width} height={height} data={data} margin={{ top: top, left: left }} layout="vertical">
             <XAxis type="number" />
-            <YAxis dataKey={component.yAxisLabel} type="category" />
+            <YAxis dataKey={nameAxisKey} label={component.dataAxisLabel} type="category" />
             <Tooltip />
-            <Bar dataKey={component.xAxisLabel} fill={fillColor}>
+            <Bar dataKey={dataAxisKey} label={component.nameAxisLabel} fill={fillColor}>
               <LabelList position="right" />
             </Bar>
         </BarChart>
@@ -356,28 +388,38 @@ export class ReportPresentation extends Component<ReportPresentationProps,Report
         const data = [];
         for (var i = 0; i < 10; i++) {
             const obj : {[key: string]: number} = {};
-            obj[component.xAxisLabel] = Math.trunc(Math.random() * 30);
-            obj[component.yAxisLabel] = Math.trunc(Math.random() * 30);
+            obj[component.nameAxisKey] = Math.trunc(Math.random() * 30);
+            obj[component.dataAxisKey] = Math.trunc(Math.random() * 30);
             data.push(obj);
         }
         return data;
     }
 
     private renderScatterChart(component: IScatterChart) {
-        const data = this.generateScatterChartFakeData(component);
         const width = component.width ? component.width : 400;
         const height = component.height ? component.height : 400;
         const top = component.top ? component.top : 0;
         const left = component.left ? component.left : 0;
         const fillColor = component.fillColor ? component.fillColor : "#387908";
+
+        let data = component.data;
+        let nameAxisKey = component.nameAxisKey;
+        let dataAxisKey = component.dataAxisKey;
+        if (data) {
+            nameAxisKey = this.updateComponentAxis(component.nameAxisKey);
+            dataAxisKey = this.updateComponentAxis(component.dataAxisKey);
+        } else{
+            data = this.generateScatterChartFakeData(component);
+        }
+
         return (
         <ScatterChart width={width} height={height} margin={{ top: top, left: left }}>
-            <XAxis type="number" dataKey={component.xAxisKey} name={component.xAxisLabel} unit={component.xAxisUnit} />
-            <YAxis type="number" dataKey={component.yAxisKey} name={component.yAxisLabel} unit={component.yAxisUnit} />
+            <XAxis type="number" dataKey={nameAxisKey} name={component.nameAxisLabel} unit={component.nameAxisUnit} />
+            <YAxis type="number" dataKey={dataAxisKey} name={component.dataAxisLabel} unit={component.dataAxisUnit} />
             <CartesianGrid />
             <Tooltip />
             <Legend/>
-            <Scatter name={component.title} data={data} fill={fillColor} label={{ dataKey: component.xAxisKey }} />
+            <Scatter name={component.title} data={data} fill={fillColor} label={{ dataKey: nameAxisKey }} />
         </ScatterChart>
         )
     }
@@ -386,20 +428,29 @@ export class ReportPresentation extends Component<ReportPresentationProps,Report
         const data = [];
         for (var i = 0; i < 10; i++) {
             const obj : {[key: string]: number} = {};
-            obj[component.xAxisKey] = Math.trunc(Math.random() * 30);
-            obj[component.yAxisKey] = Math.trunc(Math.random() * 30);
+            obj[component.nameAxisKey] = Math.trunc(Math.random() * 30);
+            obj[component.dataAxisKey] = Math.trunc(Math.random() * 30);
             data.push(obj);
         }
         return data;
     }
 
     private renderPieChart(component: IPieChart) {
-        const data : any[] = this.generatePieChartFakeData(component);
         const width = component.width ? component.width : 600;
         const height = component.height ? component.height : 400;
         const top = component.top ? component.top : 0;
         const left = component.left ? component.left : 0;
         const colors = scaleOrdinal(schemeCategory10).range();
+
+        let data = component.data;
+        let nameAxisKey = component.nameAxisKey;
+        let dataAxisKey = component.dataAxisKey;
+        if (data) {
+            nameAxisKey = this.updateComponentAxis(component.nameAxisKey);
+            dataAxisKey = this.updateComponentAxis(component.dataAxisKey);
+        } else {
+            data = this.generatePieChartFakeData(component);
+        }
 
         const renderLabelContent: React.FunctionComponent = (props: any) => {
             //const { value, percent, x, y, midAngle } = props;
@@ -419,7 +470,7 @@ export class ReportPresentation extends Component<ReportPresentationProps,Report
             <ResponsiveContainer>
                 <PieChart>
                 <Legend verticalAlign="bottom"/>
-                <Pie data={data} nameKey={component.nameAxisKey} dataKey={component.dataAxisKey} innerRadius="25%" outerRadius="40%" activeIndex={0}
+                <Pie data={data} nameKey={nameAxisKey} dataKey={dataAxisKey} innerRadius="25%" outerRadius="40%" activeIndex={0}
                     isAnimationActive={false} label={renderLabelContent}>
                     {
                     data.map((entry, index) => (
@@ -445,7 +496,6 @@ export class ReportPresentation extends Component<ReportPresentationProps,Report
     }
 
     private renderRadarChart(component: IRadarChart) {
-        const data :any[] = this.generateRadarBarFakeData(component);
         const title = component.title ? component.title : "";
         const width = component.width ? component.width : 600;
         const height = component.height ? component.height : 400;
@@ -453,15 +503,26 @@ export class ReportPresentation extends Component<ReportPresentationProps,Report
         const left = component.left ? component.left : 0;
         const fillColor = component.fillColor ? component.fillColor : "#8884d8";
         const strokeColor = component.strokeColor ? component.strokeColor : "#8884d8";
+
+        let data = component.data;
+        let nameAxisKey = component.nameAxisKey;
+        let dataAxisKey = component.dataAxisKey;
+        if (data) {
+            nameAxisKey = this.updateComponentAxis(component.nameAxisKey);
+            dataAxisKey = this.updateComponentAxis(component.dataAxisKey);
+        } else {
+            data = this.generateRadarBarFakeData(component);
+        }
+
         return (
         <div style={{position: "absolute", width: width, height: height, left: left + "px", top: top + "px"}}>
             <ResponsiveContainer>
                 <RadarChart data={data}>
                 <PolarGrid radialLines={true}/>
-                <PolarAngleAxis dataKey={component.angleAxisLabel} />
+                <PolarAngleAxis dataKey={nameAxisKey} label={component.nameAxisLabel} />
                 <PolarRadiusAxis />
                 <Tooltip />
-                <Radar name={title} dataKey={component.dataAxisLabel} stroke={strokeColor} fill={fillColor} fillOpacity={0.6} connectNulls>
+                <Radar name={title} dataKey={dataAxisKey} label={component.dataAxisLabel} stroke={strokeColor} fill={fillColor} fillOpacity={0.6} connectNulls>
                     <LabelList />
                 </Radar>
                 </RadarChart>
@@ -474,28 +535,36 @@ export class ReportPresentation extends Component<ReportPresentationProps,Report
         const data = [];
         for (var i = 0; i < 10; i++) {
             const obj : {[key: string]: any} = {};
-            obj[component.angleAxisLabel] = "Comp" + (i+1);
-            obj[component.dataAxisLabel] = Math.trunc(Math.random() * 30) ;
+            obj[component.nameAxisKey] = "Comp" + (i+1);
+            obj[component.dataAxisKey] = Math.trunc(Math.random() * 30) ;
             data.push(obj);
         }
         return data;
     }
 
     private renderRadialBarChart(component: IRadialBarChart) {
-        const data : any[] = this.generateRadialBarChartFakeData(component);
-        this.generateRadialBarChartName(component, data);
         const width = component.width ? component.width : 500;
         const height = component.height ? component.height : 300;
         const top = component.top ? component.top : 0;
         const left = component.left ? component.left : 0;
-        const style = {
-            lineHeight: '24px',
-            left: 300,
-          };
+        const style = { lineHeight: '24px', left: 300 };
+
+        let data = component.data;
+        let nameAxisKey = component.nameAxisKey;
+        let dataAxisKey = component.dataAxisKey;
+        if (data) {
+            nameAxisKey = this.updateComponentAxis(nameAxisKey);
+            dataAxisKey = this.updateComponentAxis(dataAxisKey);
+            this.generateRadialBarChartName(nameAxisKey, dataAxisKey, data);
+        } else {
+            data = this.generateRadialBarChartFakeData(component);
+            this.generateRadialBarChartName(nameAxisKey, dataAxisKey, data);
+        }
+
         return (
         <RadialBarChart width={width} height={height} cx={150} cy={150} innerRadius={20} margin={{left: left, top: top}}
             outerRadius={140} data={data} startAngle={90} endAngle={-270}>
-            <RadialBar background dataKey={component.dataAxisKey}>
+            <RadialBar background dataKey={dataAxisKey}>
               <LabelList position="end" />
             </RadialBar>
             <Legend iconSize={10} width={150} height={height/2} layout="vertical" verticalAlign="top" wrapperStyle={style} />
@@ -504,23 +573,23 @@ export class ReportPresentation extends Component<ReportPresentationProps,Report
         );
     }
 
-    private generateRadialBarChartName(component: IRadialBarChart, data: any[]) {
-        if (component.nameAxisKey !== "name" && component.dataAxisKey !== "name") {
-            for (var key in data) {
-                const line : {[key: string] : any} = data[key];
-                line["name"] = line[component.nameAxisKey];
+    private generateRadialBarChartName(nameAxisKey: string, dataAxisKey: string, data: any[]) {
+        const colors = scaleOrdinal(schemeCategory10).range();
+        for (let i = 0; i < data.length; i++) {
+            const line : {[key: string] : any} = data[i];
+            if (nameAxisKey !== "name" && dataAxisKey !== "name") {
+                line["name"] = line[nameAxisKey];
             }
+            line["fill"] = colors[i % 10] as string;
         }
     }
 
     private generateRadialBarChartFakeData(component: IRadialBarChart) {
-        const colors = scaleOrdinal(schemeCategory10).range();
         const data = [];
         for (var i = 0; i < 10; i++) {
             const obj : {[key: string]: any} = {};
             obj["name"] = "Comp" + (i+1);
             obj[component.dataAxisKey] = Math.trunc(Math.random() * 30) ;
-            obj["fill"] = colors[i % 10] as string;
             data.push(obj);
         }
         return data;
@@ -529,15 +598,25 @@ export class ReportPresentation extends Component<ReportPresentationProps,Report
     
 
     private renderTreeMap(component: ITreeMap) {
-        const data : any[] = this.generateTreeMapFakeData(component);
         const width = component.width ? component.width : 500;
         const height = component.height ? component.height : 250;
         const top = component.top ? component.top : 0;
         const left = component.left ? component.left : 0;
-        const title = component.title ? component.title : ""
+        const title = component.title ? component.title : "";
+
+        let data = component.data;
+        let nameAxisKey = component.nameAxisKey;
+        let dataAxisKey = component.dataAxisKey;
+        if (data) {
+            nameAxisKey = this.updateComponentAxis(nameAxisKey);
+            dataAxisKey = this.updateComponentAxis(dataAxisKey);
+        } else {
+            data = this.generateTreeMapFakeData(component);
+        }
+
         return (
         <Treemap width={width} height={height} data={data} isAnimationActive={false} style={{margin: {left: left, top: top }}}
-            nameKey={component.nameAxisKey} dataKey={component.dataAxisKey} type="nest"
+            nameKey={nameAxisKey} dataKey={dataAxisKey} type="nest"
             nestIndexContent={(item) => {
               return (
                 <div>

@@ -1,0 +1,15 @@
+fieldset {
+    display: inline-block;
+    width: 300px;
+    padding: 20px;
+    padding-right: 40px;
+}
+
+.mappingDiv {
+    display: inline-block;
+    width: 200px;
+}
+
+.mappingDiv > div > input {
+    width: 140px;
+}

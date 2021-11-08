@@ -42,7 +42,7 @@ export class LabelProperties extends Component<LabelPropertiesProps, LabelProper
         const { component } = this.state;
         const font = component.font ? component.font : "";
         const fontSize = component.fontSize ? component.fontSize : "";
-        const color = component.color ?component.color :"";
+        const color = component.color ?component.color : "";
         const left = component.left ? component.left : "";
         const top = component.top ? component.top : "";
         return (
@@ -69,15 +69,15 @@ export class LabelProperties extends Component<LabelPropertiesProps, LabelProper
                 </div>
                 <div>
                     <Typography className="propertyLabel">Color: </Typography>
-                    <input value={color} onChange={this.onColorChanged} />
+                    <input value={color} type="color" onChange={this.onColorChanged} />
                 </div>
                 <div>
                     <Typography className="propertyLabel">Left: </Typography>
-                    <input value={left} onChange={this.onLeftChanged} />
+                    <input value={left} type="number" min="0" step="5" onChange={this.onLeftChanged} />
                 </div>
                 <div>
                     <Typography className="propertyLabel">Top: </Typography>
-                    <input value={top} onChange={this.onTopChanged} />
+                    <input value={top} type="number" min="0" step="5" onChange={this.onTopChanged} />
                 </div>
             </div>
         )
