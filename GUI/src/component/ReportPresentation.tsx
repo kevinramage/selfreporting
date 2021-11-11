@@ -30,63 +30,66 @@ import { Radar } from "recharts";
 import { RadialBarChart } from "recharts";
 import { RadialBar } from "recharts";
 import { Treemap } from "recharts";
+import { MD5 } from "object-hash";
 
 type ReportPresentationProps = {
     reportComponent: IReportComponent | null;
 };
 type ReportPresentationState = {
-    reportComponent: IReportComponent | null;
 };
 
 export class ReportPresentation extends Component<ReportPresentationProps,ReportPresentationState> {
 
     constructor(props: ReportPresentationProps) {
         super(props);
-        this.state = {
-            reportComponent: props.reportComponent
-        }
+        this.state = {}
     }
 
     shouldComponentUpdate(nextProps: Readonly<ReportPresentationProps>, nextState: Readonly<ReportPresentationState>, nextContext: any) : boolean{
-        
+        /*
         const nextPropsType = nextProps.reportComponent ? nextProps.reportComponent.type : undefined;
         const statePropsType = this.state.reportComponent ? this.state.reportComponent.type : undefined;
+
+
 
         // Create component
         if (nextProps.reportComponent !== undefined && this.state.reportComponent === null) {
             const target = Object.assign({}, nextProps.reportComponent);
-            this.setState({ reportComponent: target });
+            //this.setState({ reportComponent: target });
             return true;
         }
 
         // Delete component
         else if ((nextProps.reportComponent === undefined || nextProps.reportComponent === null) && this.state.reportComponent !== null) {
-            this.setState({ reportComponent: null });
-            this.forceUpdate();
+            //this.setState({ reportComponent: null });
+            //this.forceUpdate();
             return true;
         }
 
         // Update component (Type)
         else if (nextPropsType !== statePropsType && nextPropsType !== undefined && statePropsType !== undefined) {
             const target = Object.assign({}, nextProps.reportComponent);
-            this.setState({ reportComponent: target });
+            //this.setState({ reportComponent: target });
             return true;
         }
         
         // Update component (Properties)
         else if (nextPropsType === statePropsType && nextPropsType !== undefined) {
-
+            console.info("Update component ?");
             const isStateUpToDate = this.shallowEqual(this.state.reportComponent, nextProps.reportComponent);
+            console.info(isStateUpToDate);
             if (!isStateUpToDate) {
                 const target = Object.assign({}, nextProps.reportComponent);
-                this.setState({ reportComponent: target });
+                //this.setState({ reportComponent: target });
                 return true;
             }
         }
+        */
 
-        return false;
+        return true;
     }
 
+    /*
     shallowEqual(object1: any, object2: any) {
         if (object1 === null || object2 === null ) { return false; }
         const keys1 = Object.keys(object1);
@@ -101,12 +104,19 @@ export class ReportPresentation extends Component<ReportPresentationProps,Report
         }
         return true;
       }
+      */
+
+      shallowEqual(object1: any, object2: any) {
+          const hash1 = MD5(object1);
+          const hash2 = MD5(object2);
+          return hash1 === hash2;
+      }
 
     render() {
-        if (this.state.reportComponent && this.state.reportComponent) {
-            return this.renderComponent(this.state.reportComponent);
+        if (this.props.reportComponent) {
+            return this.renderComponent(this.props.reportComponent);
         } else {
-            return <div></div>
+            return null;
         }
     }
 
@@ -138,32 +148,97 @@ export class ReportPresentation extends Component<ReportPresentationProps,Report
         } else if (component.type === COMPONENT_TYPE.TREEMAP) {
             return this.renderTreeMap(component as ITreeMap);
         } else {
-            return <div></div>
+            return null;
+        }
+    }
+
+    private computeLeft(component: IReportComponent) : number {
+        if (component.parent) {
+            const leftParent = this.computeLeft(component.parent);
+            let leftChildren = 0;
+            if (component.parent.type === COMPONENT_TYPE.STACK && (component.parent as IStack).orientation === ORIENTATION_TYPE.HORIZONTAL) {
+                leftChildren = this.computeSpaceContainer(component.parent as IStack, component);
+            }
+            const left = component.left || 0;
+            return leftParent + leftChildren + left;
+        } else {
+            return component.left || 0;
+        }
+    }
+
+    private computeTop(component: IReportComponent) : number {
+        if (component.parent) {
+            const topParent = this.computeTop(component.parent);
+            let topChildren = 0;
+            if (component.parent.type === COMPONENT_TYPE.STACK && (component.parent as IStack).orientation === ORIENTATION_TYPE.VERTICAL) {
+                topChildren = this.computeSpaceContainer(component.parent as IStack, component);
+            }
+            const top = component.top || 0;
+            return topParent + topChildren + top;
+        } else {
+            return component.top || 0;
+        }
+    }
+
+    private computeSpaceContainer(stack: IStack, component: IReportComponent) {
+        const index = stack.subObjects.indexOf(component);
+        if (index !== -1) {
+            const list = stack.subObjects.slice(0, index);
+            if (list.length > 0) {
+                if (!stack.orientation || stack.orientation === ORIENTATION_TYPE.HORIZONTAL) {
+                    return list.map(so => { return this.computeWidth(so) }).reduce((a,b ) => { return a + b });
+                } else {
+                    return list.map(so => { return this.computeHeight(so) }).reduce((a,b ) => { return a + b });
+                }
+            } else {
+                return 0;
+            } 
+        } else {
+            return 0;
+        }
+    }
+
+    private computeWidth(component: IReportComponent) {
+        const domElement = document.getElementById(component.id);
+        if (domElement) {
+            return domElement.clientWidth;
+        } else {
+            return 0;
+        }
+    }
+
+    private computeHeight(component: IReportComponent) {
+        const domElement = document.getElementById(component.id);
+        if (domElement) {
+            return domElement.clientHeight;
+        } else {
+            return 0;
         }
     }
 
     private renderLabel(component: ILabel) {
         const font = component.font || "Segoe";
         const fontSize = component.fontSize || 22;
-        const color = component.color || "#000";
-        let style : React.CSSProperties = {position: "absolute", color: color, fontFamily: font, fontSize: fontSize};
-        if (component.left) {
-            style.left = component.left;
-        }
-        if (component.top) {
-            style.top = component.top;
-        }
-        return <Typography style={style}>{component.text}</Typography>
+        const color = component.color || "#000000";
+        let style : React.CSSProperties = {color: color, fontFamily: font, fontSize: fontSize};
+        style.position = "absolute";
+        style.left = this.computeLeft(component);
+        style.top = this.computeTop(component);
+
+        return <Typography id={component.id} key={component.id} style={style}>{component.text}</Typography>
     }
 
     private renderRating(component: IRating) {
-        let style : React.CSSProperties = { position: "absolute" };
-        if (component.left) { style.left = component.left; }
-        if (component.top) { style.top = component.top; }
+        let style : React.CSSProperties = { };
+
+        style.position = "absolute";
+        style.left = this.computeLeft(component);
+        style.top = this.computeTop(component);
+
         return (
-            <div style={style}>
-            <Typography component="legend">{component.text}</Typography>
-            <Rating name={component.text} value={component.rating} disabled></Rating>
+            <div id={component.id} key={component.id} style={style}>
+                <Typography component="legend">{component.text}</Typography>
+                <Rating name={component.text} value={component.rating} disabled></Rating>
             </div>
         )
     }
@@ -171,30 +246,29 @@ export class ReportPresentation extends Component<ReportPresentationProps,Report
     private renderLink(component: ILink) {
         const font = component.font || "Segoe";
         const fontSize = component.fontSize || 22;
-        const color = component.color || "#000";
-        let style : React.CSSProperties = {position: "absolute", color: color, fontFamily: font, fontSize: fontSize};
-        if (component.left) {
-            style.left = component.left;
-        }
-        if (component.top) {
-            style.top = component.top;
-        }
-        return <Link style={style} href={component.reference}>{component.text}</Link>
+        const color = component.color || "#000000";
+        let style : React.CSSProperties = {color: color, fontFamily: font, fontSize: fontSize};
+        
+        style.position = "absolute";
+        style.left = this.computeLeft(component);
+        style.top = this.computeTop(component);
+
+        return <Link id={component.id} key={component.id} style={style} href={component.reference}>{component.text}</Link>
     }
 
     private renderDataGrid(component: IDataGrid) {
         let rows = component.data;
         const columns = this.getDataGridColumn(component);
-        const left = component.left || 0;
-        const top = component.top || 0;
         const width = component.width || 450;
         const height = component.height || 300;
         const style : React.CSSProperties = {
-            left: left, 
-            top: top,
             width: width,
             height: height
         };
+
+        style.position = "absolute";
+        style.left = this.computeLeft(component);
+        style.top = this.computeTop(component);
 
         // Generate fake data
         if (rows === undefined) {
@@ -204,7 +278,11 @@ export class ReportPresentation extends Component<ReportPresentationProps,Report
         // Generate rows id
         this.generateDataGridRowId(rows);
 
-        return <DataGrid style={style} columns={columns} rows={rows}></DataGrid>
+        return (
+            <div id={component.id} key={component.id} style={style}>
+                <DataGrid columns={columns} rows={rows}></DataGrid>
+            </div>
+        )
     }
 
     private getDataGridColumn(component: IDataGrid) {
@@ -266,17 +344,13 @@ export class ReportPresentation extends Component<ReportPresentationProps,Report
                 labelStyle={{ fontWeight: 'bold', color: '#666666' }} />
         }
 
-        let left : number = 0;
-        if (component.left) {
-            left = component.left;
-        }
-        let top = 0;
-        if (component.top) {
-            top = component.top;
-        }
+        let left = this.computeLeft(component);
+        let top = this.computeTop(component);
+        
+        ///TODO Check the parent size before the insertion of the element
 
         return (
-            <LineChart width={width} height={height} data={data} margin={{ left: left, top: top }}>
+            <LineChart id={component.id} key={component.id} width={width} height={height} data={data} margin={{ left: left, top: top }}>
             
             <CartesianGrid horizontal={horizontalGridEnabled} vertical={verticalGridEnabled} />
             <XAxis domain={['auto', 'auto']} dataKey={nameAxisKey} label={component.nameAxisLabel} />
@@ -316,8 +390,6 @@ export class ReportPresentation extends Component<ReportPresentationProps,Report
         const gradientEnd = component.gradientEnd ? component.gradientEnd : "rgba(0, 136, 254, 0)";
         const width = component.width ? component.width : 800;
         const height = component.height ? component.height : 400;
-        const top = component.top ? component.top : 0;
-        const left = component.left ? component.left : 0;
         let nameAxisKey = component.nameAxisKey; 
         let dataAxisKey = component.dataAxisKey;
         if (data) {
@@ -327,8 +399,11 @@ export class ReportPresentation extends Component<ReportPresentationProps,Report
             data = this.generateAreaChartFakeData(component)
         }
 
+        let left = this.computeLeft(component);
+        let top = this.computeTop(component);
+
         return (
-            <AreaChart width={width} height={height} data={data} margin={{ top: top, left: left }}>
+            <AreaChart id={component.id} key={component.id} width={width} height={height} data={data} margin={{ top: top, left: left }}>
             <defs>
               <linearGradient id="MyGradient" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor={gradientStart} />
@@ -359,8 +434,6 @@ export class ReportPresentation extends Component<ReportPresentationProps,Report
     private renderBarChart(component: IBarChart) {
         const width = component.width ? component.width : 400;
         const height = component.height ? component.height : 400;
-        const top = component.top ? component.top : 0;
-        const left = component.left ? component.left : 0;
         const fillColor = component.fillColor ? component.fillColor : "#387908";
         let nameAxisKey = component.nameAxisKey;
         let dataAxisKey = component.dataAxisKey;
@@ -372,8 +445,11 @@ export class ReportPresentation extends Component<ReportPresentationProps,Report
             data = this.generateBarChartFakeData(component);
         }
 
+        let left = this.computeLeft(component);
+        let top = this.computeTop(component);
+
         return ( 
-        <BarChart width={width} height={height} data={data} margin={{ top: top, left: left }} layout="vertical">
+        <BarChart  id={component.id} key={component.id} width={width} height={height} data={data} margin={{ top: top, left: left }} layout="vertical">
             <XAxis type="number" />
             <YAxis dataKey={nameAxisKey} label={component.dataAxisLabel} type="category" />
             <Tooltip />
@@ -398,8 +474,6 @@ export class ReportPresentation extends Component<ReportPresentationProps,Report
     private renderScatterChart(component: IScatterChart) {
         const width = component.width ? component.width : 400;
         const height = component.height ? component.height : 400;
-        const top = component.top ? component.top : 0;
-        const left = component.left ? component.left : 0;
         const fillColor = component.fillColor ? component.fillColor : "#387908";
 
         let data = component.data;
@@ -412,8 +486,11 @@ export class ReportPresentation extends Component<ReportPresentationProps,Report
             data = this.generateScatterChartFakeData(component);
         }
 
+        let left = this.computeLeft(component);
+        let top = this.computeTop(component);
+
         return (
-        <ScatterChart width={width} height={height} margin={{ top: top, left: left }}>
+        <ScatterChart id={component.id} key={component.id} width={width} height={height} margin={{ top: top, left: left }}>
             <XAxis type="number" dataKey={nameAxisKey} name={component.nameAxisLabel} unit={component.nameAxisUnit} />
             <YAxis type="number" dataKey={dataAxisKey} name={component.dataAxisLabel} unit={component.dataAxisUnit} />
             <CartesianGrid />
@@ -438,8 +515,6 @@ export class ReportPresentation extends Component<ReportPresentationProps,Report
     private renderPieChart(component: IPieChart) {
         const width = component.width ? component.width : 600;
         const height = component.height ? component.height : 400;
-        const top = component.top ? component.top : 0;
-        const left = component.left ? component.left : 0;
         const colors = scaleOrdinal(schemeCategory10).range();
 
         let data = component.data;
@@ -465,8 +540,11 @@ export class ReportPresentation extends Component<ReportPresentationProps,Report
             );
           };
 
+        let left = this.computeLeft(component);
+        let top = this.computeTop(component);
+
         return (
-        <div style={{position: "absolute", width: width, height: height, left: left + "px", top: top + "px"}}>
+        <div id={component.id} key={component.id} style={{position: "absolute", width: width, height: height, left: left, top: top}}>
             <ResponsiveContainer>
                 <PieChart>
                 <Legend verticalAlign="bottom"/>
@@ -499,8 +577,6 @@ export class ReportPresentation extends Component<ReportPresentationProps,Report
         const title = component.title ? component.title : "";
         const width = component.width ? component.width : 600;
         const height = component.height ? component.height : 400;
-        const top = component.top ? component.top : 0;
-        const left = component.left ? component.left : 0;
         const fillColor = component.fillColor ? component.fillColor : "#8884d8";
         const strokeColor = component.strokeColor ? component.strokeColor : "#8884d8";
 
@@ -514,8 +590,11 @@ export class ReportPresentation extends Component<ReportPresentationProps,Report
             data = this.generateRadarBarFakeData(component);
         }
 
+        let left = this.computeLeft(component);
+        let top = this.computeTop(component);
+
         return (
-        <div style={{position: "absolute", width: width, height: height, left: left + "px", top: top + "px"}}>
+        <div id={component.id} key={component.id} style={{position: "absolute", width: width, height: height, left: left, top: top}}>
             <ResponsiveContainer>
                 <RadarChart data={data}>
                 <PolarGrid radialLines={true}/>
@@ -545,8 +624,6 @@ export class ReportPresentation extends Component<ReportPresentationProps,Report
     private renderRadialBarChart(component: IRadialBarChart) {
         const width = component.width ? component.width : 500;
         const height = component.height ? component.height : 300;
-        const top = component.top ? component.top : 0;
-        const left = component.left ? component.left : 0;
         const style = { lineHeight: '24px', left: 300 };
 
         let data = component.data;
@@ -561,8 +638,11 @@ export class ReportPresentation extends Component<ReportPresentationProps,Report
             this.generateRadialBarChartName(nameAxisKey, dataAxisKey, data);
         }
 
+        let left = this.computeLeft(component);
+        let top = this.computeTop(component);
+
         return (
-        <RadialBarChart width={width} height={height} cx={150} cy={150} innerRadius={20} margin={{left: left, top: top}}
+        <RadialBarChart id={component.id} key={component.id} width={width} height={height} cx={150} cy={150} innerRadius={20} margin={{left: left, top: top}}
             outerRadius={140} data={data} startAngle={90} endAngle={-270}>
             <RadialBar background dataKey={dataAxisKey}>
               <LabelList position="end" />
@@ -600,8 +680,6 @@ export class ReportPresentation extends Component<ReportPresentationProps,Report
     private renderTreeMap(component: ITreeMap) {
         const width = component.width ? component.width : 500;
         const height = component.height ? component.height : 250;
-        const top = component.top ? component.top : 0;
-        const left = component.left ? component.left : 0;
         const title = component.title ? component.title : "";
 
         let data = component.data;
@@ -614,20 +692,25 @@ export class ReportPresentation extends Component<ReportPresentationProps,Report
             data = this.generateTreeMapFakeData(component);
         }
 
+        let left = this.computeLeft(component);
+        let top = this.computeTop(component);
+
         return (
-        <Treemap width={width} height={height} data={data} isAnimationActive={false} style={{margin: {left: left, top: top }}}
-            nameKey={nameAxisKey} dataKey={dataAxisKey} type="nest"
-            nestIndexContent={(item) => {
-              return (
-                <div>
-                  {`${item.name || title}`}
-                </div>
-              );
-            }
-            }
-          >
-            <Tooltip />
-          </Treemap>
+        <div id={component.id} key={component.id} style={{position: "absolute", left: left, top: top, width: width, height: height}}>
+            <Treemap width={width} height={height} data={data} isAnimationActive={false}
+                nameKey={nameAxisKey} dataKey={dataAxisKey} type="nest"
+                nestIndexContent={(item) => {
+                return (
+                    <div>
+                    {`${item.name || title}`}
+                    </div>
+                );
+                }
+                }
+            >
+                <Tooltip />
+            </Treemap>
+          </div>
         )
     }
 
@@ -644,10 +727,14 @@ export class ReportPresentation extends Component<ReportPresentationProps,Report
 
     private renderStack(component: IStack) {
         const orientation : ResponsiveStyleValue<"column" | "row" | "column-reverse" | "row-reverse"> = component.orientation as ResponsiveStyleValue<"column" | "row" | "column-reverse" | "row-reverse"> || ORIENTATION_TYPE.VERTICAL;
-        let style : React.CSSProperties = {position: "relative"};
+        let style : React.CSSProperties = {position: "relative", height: "100%"};
+
+        style.left = this.computeLeft(component);
+        style.top = this.computeTop(component);
+
         return (
-            <Stack direction={orientation} style={style}>
-            { component.subObject.map(o => { return this.renderComponent(o); })}
+            <Stack id={component.id} key={component.id} direction={orientation} style={style}>
+            { component.subObjects.map(so => { return this.renderComponent(so) }) }
             </Stack>
         )
     }

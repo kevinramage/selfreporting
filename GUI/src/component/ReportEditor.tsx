@@ -94,8 +94,8 @@ export class ReportEditor extends Component<ReportEditorProps, ReportEditorState
                     <div className="actionBar">
                         <ReportOptions report={report} componentChangeListener={this.changeComponent} />
                     </div>
-                    <div className="contentBar">
-                        <ReportPresentation reportComponent={report.rootComponent} />
+                    <div className="contentBar" style={{overflow: "auto"}}>
+                        <ReportPresentation reportComponent={this.state.report.rootComponent} />
                     </div>
                 </div>
             </div>
@@ -136,9 +136,7 @@ export class ReportEditor extends Component<ReportEditorProps, ReportEditorState
     }
 
     changeComponent(component: IReportComponent|null) {
-        const report = this.state.report;
-        report.rootComponent = component;
-        this.setState({report: report});
+        this.setState({report: this.state.report });
     }
 
     private inject(component: IReportComponent | null) {
@@ -160,7 +158,7 @@ export class ReportEditor extends Component<ReportEditorProps, ReportEditorState
 
     private injectDataComponent(dataComponent: IDataComponent) {
         dataComponent.data = this.getData(this.state.report);
-        this.changeComponent(dataComponent);
+        //this.changeComponent(dataComponent);
     }
 
     private getData(report: IReport) : any[] {

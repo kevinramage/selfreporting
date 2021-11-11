@@ -1,7 +1,8 @@
 import { Button, CardContent, ImageList, ImageListItem, Link } from "@material-ui/core";
 import { Card, CardActions, ImageListItemBar } from "@mui/material";
 import React, { Component, MouseEvent } from "react";
-import { COMPONENT_TYPE, IAreaChart, IBarChart, IDataGrid, ILabel, ILineChart, ILink, IPieChart, IRadarChart, IRadialBarChart, IRating, IReportComponent, IScatterChart, ITreeMap } from "../types/reportComponent";
+import { v4 } from "uuid";
+import { COMPONENT_TYPE, IAreaChart, IBarChart, IDataGrid, ILabel, ILineChart, ILink, IPieChart, IRadarChart, IRadialBarChart, IRating, IReportComponent, IScatterChart, IStack, ITreeMap, ORIENTATION_TYPE } from "../types/reportComponent";
 
 import "./ComponentSelection.css";
 
@@ -49,6 +50,8 @@ const containerListItem : React.CSSProperties = {
 
 export class ComponentSelection extends Component<ComponentSelectionProps, ComponentSelectionState> {
     
+    private static COUNTER : number = 1;
+
     constructor(props: ComponentSelectionProps) {
         super(props);
         this.state = {
@@ -342,10 +345,11 @@ export class ComponentSelection extends Component<ComponentSelectionProps, Compo
         switch (componentType) {
             case COMPONENT_TYPE.LABEL:
                 const label : ILabel = {
-                    name: "label01",
+                    id: v4(),
+                    name: "label" + ComponentSelection.COUNTER++,
                     type: COMPONENT_TYPE.LABEL, 
                     text: "title",
-                    color: "#000",
+                    color: "#000000",
                     font: "arial",
                     fontSize: 22,
                     left: 0,
@@ -355,11 +359,12 @@ export class ComponentSelection extends Component<ComponentSelectionProps, Compo
 
             case COMPONENT_TYPE.LINK:
                 const link : ILink = {
-                    name: "link01",
+                    id: v4(),
+                    name: "link" + ComponentSelection.COUNTER++,
                     type: COMPONENT_TYPE.LINK,
                     text: "clickOnMe",
                     reference: "https://google.fr",
-                    color: "#000",
+                    color: "#000000",
                     font: "arial",
                     fontSize: 22,
                     left: 0,
@@ -369,7 +374,8 @@ export class ComponentSelection extends Component<ComponentSelectionProps, Compo
 
             case COMPONENT_TYPE.RATING:
                 const rating : IRating = {
-                    name: "rating01",
+                    id: v4(),
+                    name: "rating" + ComponentSelection.COUNTER++,
                     type: COMPONENT_TYPE.RATING,
                     text: "rate",
                     rating: 2,
@@ -380,7 +386,8 @@ export class ComponentSelection extends Component<ComponentSelectionProps, Compo
 
             case COMPONENT_TYPE.DATAGRID:
                 const datagrid : IDataGrid = {
-                    name: "dataGrid01",
+                    id: v4(),
+                    name: "dataGrid" + ComponentSelection.COUNTER++,
                     type: COMPONENT_TYPE.DATAGRID,
                     columns: [
                         { fieldName: "field01", headerName: "field01"}
@@ -395,7 +402,8 @@ export class ComponentSelection extends Component<ComponentSelectionProps, Compo
             
             case COMPONENT_TYPE.LINECHART:
                 const linechart : ILineChart = {
-                    name: "lineChart01",
+                    id: v4(),
+                    name: "lineChart" + ComponentSelection.COUNTER++,
                     type: COMPONENT_TYPE.LINECHART,
                     nameAxisKey: "xAxis",
                     nameAxisLabel: "xAxis",
@@ -414,7 +422,8 @@ export class ComponentSelection extends Component<ComponentSelectionProps, Compo
 
             case COMPONENT_TYPE.AREACHART:
                 const areaChart : IAreaChart = {
-                    name: "areaChart01",
+                    id: v4(),
+                    name: "areaChart" + ComponentSelection.COUNTER++,
                     type: COMPONENT_TYPE.AREACHART,
                     nameAxisKey: "xAxis",
                     nameAxisLabel: "xAxis",
@@ -434,7 +443,8 @@ export class ComponentSelection extends Component<ComponentSelectionProps, Compo
             
             case COMPONENT_TYPE.BARCHART:
                 const barChart : IBarChart = {
-                    name: "barChart01",
+                    id: v4(),
+                    name: "barChart" + ComponentSelection.COUNTER++,
                     type: COMPONENT_TYPE.BARCHART,
                     nameAxisLabel: "xAxis",
                     nameAxisKey: "xAxis",
@@ -450,7 +460,8 @@ export class ComponentSelection extends Component<ComponentSelectionProps, Compo
             
             case COMPONENT_TYPE.SCATTERCHART:
                 const scatterChart : IScatterChart = {
-                    name: "scatterChart01",
+                    id: v4(),
+                    name: "scatterChart" + ComponentSelection.COUNTER++,
                     type: COMPONENT_TYPE.SCATTERCHART,
                     nameAxisKey: "xAxis",
                     nameAxisLabel: "xAxis",
@@ -469,7 +480,8 @@ export class ComponentSelection extends Component<ComponentSelectionProps, Compo
 
             case COMPONENT_TYPE.PIECHART:
                 const pieChart : IPieChart = {
-                    name: "pieChart01",
+                    id: v4(),
+                    name: "pieChart" + ComponentSelection.COUNTER++,
                     type: COMPONENT_TYPE.PIECHART,
                     nameAxisKey: "name",
                     nameAxisLabel: "name",
@@ -484,7 +496,8 @@ export class ComponentSelection extends Component<ComponentSelectionProps, Compo
 
             case COMPONENT_TYPE.RADARCHART:
                 const radarChart : IRadarChart = {
-                    name: "radarChart01",
+                    id: v4(),
+                    name: "radarChart" + ComponentSelection.COUNTER++,
                     type: COMPONENT_TYPE.RADARCHART,
                     title: "MyGraph",
                     nameAxisKey: "name",
@@ -502,7 +515,8 @@ export class ComponentSelection extends Component<ComponentSelectionProps, Compo
 
             case COMPONENT_TYPE.RADIALBARCHART:
                 const radialBarChart : IRadialBarChart = {
-                    name: "radialBarChart",
+                    id: v4(),
+                    name: "radialBarChart" + ComponentSelection.COUNTER++,
                     type: COMPONENT_TYPE.RADIALBARCHART,
                     nameAxisKey: "name",
                     nameAxisLabel: "name",
@@ -517,7 +531,8 @@ export class ComponentSelection extends Component<ComponentSelectionProps, Compo
 
             case COMPONENT_TYPE.TREEMAP:
                 const treeMap: ITreeMap = {
-                    name: "treeMap01",
+                    id: v4(),
+                    name: "treeMap" + ComponentSelection.COUNTER++,
                     type: COMPONENT_TYPE.TREEMAP,
                     nameAxisKey: "name",
                     nameAxisLabel: "name",
@@ -530,6 +545,18 @@ export class ComponentSelection extends Component<ComponentSelectionProps, Compo
                     top: 0
                 };
                 return treeMap;
+
+                case COMPONENT_TYPE.STACK:
+                const stack : IStack = {
+                    id: v4(),
+                    name: "stack" + ComponentSelection.COUNTER++,
+                    type: COMPONENT_TYPE.STACK,
+                    left: 0,
+                    top: 0,
+                    subObjects: [],
+                    orientation: ORIENTATION_TYPE.HORIZONTAL
+                };
+                return stack;
         }
         
         return null;

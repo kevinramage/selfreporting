@@ -10,7 +10,7 @@ import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import TreeView from '@mui/lab/TreeView';
 import TreeItem from '@mui/lab/TreeItem';
-import { COMPONENT_TYPE, IAreaChart, IBarChart, IDataGrid, ILabel, ILineChart, ILink, IPieChart, IRadarChart, IRadialBarChart, IRating, IReportComponent, IScatterChart, ITreeMap } from "../types/reportComponent";
+import { COMPONENT_TYPE, IAreaChart, IBarChart, IDataGrid, ILabel, ILineChart, ILink, IPieChart, IRadarChart, IRadialBarChart, IRating, IReportComponent, IScatterChart, IStack, ITreeMap } from "../types/reportComponent";
 import { ComponentSelection } from "./ComponentSelection";
 import { LabelProperties } from "./dataComponent/LabelProperties";
 import { RatingProperties } from "./dataComponent/RatingProperties";
@@ -28,6 +28,7 @@ import { PieChartProperties } from "./dataComponent/PieChartProperties";
 import { RadarChartProperties } from "./dataComponent/RadarChartProperties";
 import { RadialChartProperties } from "./dataComponent/RadialChartProperties";
 import { TreeMapProperties } from "./dataComponent/TreeMapProperties";
+import { StackProperties } from "./dataComponent/StackProperties";
 
 
 export type onComponentChangeListener = (component: IReportComponent|null) => void;
@@ -37,12 +38,13 @@ type ReportOptionsProps = {
     componentChangeListener: onComponentChangeListener;
 };
 type ReportOptionsState = {
-    reportComponent: IReportComponent | null;
     dataSources: IDataSource[];
     isOpenCreateComponent: boolean;
     isOpenUpdateComponent: boolean;
     isStructureExpanded: boolean;
     isPropertiesExpanded: boolean;
+    expanded: string[];
+    selected?: string;
     componentChangeListener: onComponentChangeListener;
 };
 
@@ -50,22 +52,24 @@ export class ReportOptions extends Component<ReportOptionsProps, ReportOptionsSt
 
     constructor(props: ReportOptionsProps) {
         super(props);
-        this.state = { 
-            reportComponent: props.report.rootComponent,
+        this.state = {
             dataSources: props.report.dataSources,
             isOpenCreateComponent: false,
             isOpenUpdateComponent: false,
             isStructureExpanded: true,
             isPropertiesExpanded: false,
+            expanded: [],
             componentChangeListener: props.componentChangeListener
         };
         this.addComponent = this.addComponent.bind(this);
         this.updateComponent = this.updateComponent.bind(this);
         this.deleteComponent = this.deleteComponent.bind(this);
+        this.onNodeSelected = this.onNodeSelected.bind(this);
+        this.onNodeToggled = this.onNodeToggled.bind(this);
         this.closeCreateComponent = this.closeCreateComponent.bind(this);
         this.closeUpdateComponent = this.closeUpdateComponent.bind(this);
         this.onCloseSelectComponentDialog = this.onCloseSelectComponentDialog.bind(this);
-        this.onSelectComponent = this.onSelectComponent.bind(this);
+        this.onCloseUpdateSelectComponentDialog = this.onCloseUpdateSelectComponentDialog.bind(this);
 
         this.clickOnStructure = this.clickOnStructure.bind(this);
         this.clickOnProperties = this.clickOnProperties.bind(this);
@@ -75,7 +79,8 @@ export class ReportOptions extends Component<ReportOptionsProps, ReportOptionsSt
 
     render() {
         const { isOpenCreateComponent, isOpenUpdateComponent, isStructureExpanded, isPropertiesExpanded } = this.state;
-        const componentType = this.state.reportComponent ? this.state.reportComponent.type : "";
+        const reportComponent = this.props.report.rootComponent;
+        const componentType = reportComponent ? reportComponent.type : "";
 
         let colorAddComponent : string = "#2C5530";
         if (this.isNewObjectButtonDisabled()) { colorAddComponent = "#DDD"; }
@@ -105,8 +110,11 @@ export class ReportOptions extends Component<ReportOptionsProps, ReportOptionsSt
                             <Divider orientation="horizontal" />
                             <TreeView style={{height: "100px"}}
                                 defaultCollapseIcon={<ExpandMoreIcon />}
-                                defaultExpandIcon={<ChevronRightIcon />}>
-                                { this.renderRootComponent(this.state.reportComponent) }
+                                defaultExpandIcon={<ChevronRightIcon />}
+                                onNodeSelect={this.onNodeSelected}
+                                expanded={this.state.expanded}
+                                >
+                                { this.renderComponent(reportComponent) }
                             </TreeView>
                         </div>
                     </AccordionDetails>
@@ -117,7 +125,7 @@ export class ReportOptions extends Component<ReportOptionsProps, ReportOptionsSt
                         <Typography style={{paddingLeft: "10px"}}>Properties</Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                        { this.renderComponentProperties(this.state.reportComponent) }
+                        { this.renderSelectedComponentProperties() }
                     </AccordionDetails>
                 </Accordion>
 
@@ -128,7 +136,7 @@ export class ReportOptions extends Component<ReportOptionsProps, ReportOptionsSt
 
                 <Dialog className="dialogComponent" open={isOpenUpdateComponent} onClose={this.closeUpdateComponent}>
                     <DialogTitle>Update component</DialogTitle>
-                    <ComponentSelection componentType={componentType} closeListener={this.onCloseSelectComponentDialog}/>
+                    <ComponentSelection componentType={componentType} closeListener={this.onCloseUpdateSelectComponentDialog}/>
                 </Dialog>
             </div>
         )
@@ -142,15 +150,58 @@ export class ReportOptions extends Component<ReportOptionsProps, ReportOptionsSt
         this.setState({isStructureExpanded: false, isPropertiesExpanded: true});
     }
 
-    renderRootComponent(reportComponent: IReportComponent | null) {
+    renderComponent(reportComponent: IReportComponent | null) {
         if (reportComponent) {
-            return (
-                <TreeItem nodeId="1" label={reportComponent.name} icon={<BarChartIcon />}>
-                </TreeItem>
-            )
+            if (reportComponent.type === COMPONENT_TYPE.STACK) {
+                const stackComponent = reportComponent as IStack;
+                if (stackComponent.subObjects.length > 0) {
+                    return (<TreeItem  key={stackComponent.id} nodeId={stackComponent.id} label={stackComponent.name} icon={<BarChartIcon />}>{stackComponent.subObjects.map(so => {return this.renderComponent(so) })}</TreeItem>);
+                } else {
+                    return <TreeItem key={stackComponent.id} nodeId={stackComponent.id} label={stackComponent.name} icon={<BarChartIcon />} />
+                }
+            } else {
+                return <TreeItem key={reportComponent.id} nodeId={reportComponent.id} label={reportComponent.name} icon={<BarChartIcon />} />
+            }
         } else {
             return null;
         }
+    }
+
+    onNodeSelected(event: React.SyntheticEvent, nodeIds: string) {
+        this.setState({selected: nodeIds});
+    }
+
+    onNodeToggled(event: React.SyntheticEvent, nodeIds: string[]) {
+        //this.setState({expanded: nodeIds});
+    }
+
+    getSelectedComponent() {
+        if (this.state.selected) {
+            return this.getSelectedComponentFromId(this.props.report.rootComponent, this.state.selected);
+        } else {
+            return null;
+        }
+    }
+
+    getSelectedComponentFromId(component: IReportComponent|null, id: string) : IReportComponent | null {
+        let selectedComponent : IReportComponent | null = null;
+        if (component === null) {
+            return null;
+        } else if (component.id !== id) {
+            if (component.type === COMPONENT_TYPE.STACK) {
+                const stack = component as IStack;
+                for (var i = 0; i < stack.subObjects.length; i++) {
+                    const comp = this.getSelectedComponentFromId(stack.subObjects[i], id);
+                    if (comp !== null) {
+                        selectedComponent = comp;
+                        break;
+                    }
+                }
+            }
+        } else {
+            selectedComponent = component;
+        }
+        return selectedComponent;
     }
 
     closeCreateComponent() {
@@ -161,26 +212,41 @@ export class ReportOptions extends Component<ReportOptionsProps, ReportOptionsSt
     }
 
     addComponent() {
-        if (this.state.reportComponent === null) {
-            this.setState({isOpenCreateComponent: true})
-        }
+        this.setState({isOpenCreateComponent: true});
     }
     
     updateComponent() {
-        if (this.state.reportComponent !== null) {
+        if (this.props.report.rootComponent !== null) {
             this.setState({isOpenUpdateComponent: true});
         }
     }
 
     deleteComponent() {
-        this.setState({reportComponent: null});
-        if (this.state.componentChangeListener) {
-            this.state.componentChangeListener(null);
-        }
-    }
+        const selectedComponent = this.getSelectedComponent();
+        if (selectedComponent !== null) {
+            const parent = selectedComponent.parent;
 
-    onSelectComponent(e: React.ReactEventHandler<HTMLUListElement>) {
-        console.info(e);
+            // Delete child node
+            if (parent !== undefined) {
+                const container = parent as IStack;
+                const index = container.subObjects.indexOf(selectedComponent);
+                container.subObjects.splice(index, 1);
+                this.setState({selected: undefined});
+                if (this.state.componentChangeListener) {
+                    this.state.componentChangeListener(this.props.report.rootComponent);
+                }
+
+            // Delete root node
+            } else {
+                this.props.report.rootComponent = null;
+                this.setState({selected: undefined});
+                if (this.state.componentChangeListener) {
+                    this.state.componentChangeListener(null);
+                }
+            }
+        }
+        
+        
     }
 
     onCloseSelectComponentDialog(component: IReportComponent|null, isSubmit: boolean) {
@@ -188,24 +254,87 @@ export class ReportOptions extends Component<ReportOptionsProps, ReportOptionsSt
         state.isOpenCreateComponent = false;
         state.isOpenUpdateComponent = false;
         if (isSubmit && component !== null) {
-            state.reportComponent = component;
-            if (this.state.componentChangeListener) {
-                this.state.componentChangeListener(component);
+            const selectedComponent = this.getSelectedComponent();
+            
+            // No component present
+            if (this.props.report.rootComponent === null ) {
+                this.props.report.rootComponent = component;
+                if (this.state.componentChangeListener) {
+                    this.state.componentChangeListener(component);
+                }
+
+            // Component selected is container
+            } else if (selectedComponent !== null && selectedComponent.type === COMPONENT_TYPE.STACK) {
+                
+                const container = selectedComponent as IStack;
+                component.parent = container;
+                container.subObjects.push(component);
+                state.expanded.push(container.id);
+                if (this.state.componentChangeListener) {
+                    this.state.componentChangeListener(this.props.report.rootComponent);
+                }
+            }
+        }
+        this.setState(state);
+    }
+
+    onCloseUpdateSelectComponentDialog(component: IReportComponent|null, isSubmit: boolean) {
+        console.info("onCloseUpdateSelectComponentDialog");
+        let state : ReportOptionsState = this.state;
+        state.isOpenCreateComponent = false;
+        state.isOpenUpdateComponent = false;
+        if (isSubmit && component !== null) {
+            let selectedComponent = this.getSelectedComponent();
+            if (selectedComponent !== null ) {
+
+                // Non root element
+                if (selectedComponent.parent) {
+                    if (selectedComponent.parent.type === COMPONENT_TYPE.STACK) {
+                        const stack = selectedComponent.parent as IStack;
+                        const index = stack.subObjects.indexOf(selectedComponent);
+                        stack.subObjects.splice(index, 1, component);
+                    }
+                
+                // Root element
+                } else {
+                    console.info("Root element")
+                    console.info(component);
+                    this.props.report.rootComponent = component;
+                    console.info(this.props.report.rootComponent);
+                }
+
+                // Notify
+                if (this.state.componentChangeListener) {
+                    this.state.componentChangeListener(this.props.report.rootComponent);
+                }
             }
         }
         this.setState(state);
     }
 
     isNewObjectButtonDisabled() {
-        return this.state.reportComponent !== null;
+        const reportComponent = this.props.report.rootComponent;
+        const selectedComponent = this.getSelectedComponent();
+
+        // Disabled if a component is already present and if component selected is not a container       
+        return reportComponent !== null && (selectedComponent === null || selectedComponent.type !== COMPONENT_TYPE.STACK);
     }
 
     isUpdateObjectButtonDisabled() {
-        return this.state.reportComponent === null;
+        return this.getSelectedComponent() === null;
     }
 
     isDeleteObjectButtonDisabled() {
-        return this.state.reportComponent === null;
+        return this.getSelectedComponent() === null;
+    }
+
+    renderSelectedComponentProperties() {
+        const selectedComponent = this.getSelectedComponent();
+        if (selectedComponent) {
+            return this.renderComponentProperties(selectedComponent);
+        } else {
+            return this.renderComponentProperties(this.props.report.rootComponent);
+        }
     }
 
     renderComponentProperties(component: IReportComponent | null) {
@@ -235,6 +364,8 @@ export class ReportOptions extends Component<ReportOptionsProps, ReportOptionsSt
                     return this.renderRadialChartProperties(component as IRadarChart);
                 case COMPONENT_TYPE.TREEMAP:
                     return this.renderTreeMapProperties(component as ITreeMap);
+                case COMPONENT_TYPE.STACK:
+                    return this.renderStackProperties(component as IStack);
             }
             return null;
         } else {
@@ -311,6 +442,12 @@ export class ReportOptions extends Component<ReportOptionsProps, ReportOptionsSt
     renderTreeMapProperties(treeMap: ITreeMap) {
         return (
             <TreeMapProperties component={treeMap} dataSources={this.state.dataSources} componentChangeListener={this.notifyComponentChanges} />
+        )
+    }
+
+    renderStackProperties(stack: IStack) {
+        return (
+            <StackProperties component={stack} componentChangeListener={this.notifyComponentChanges} />
         )
     }
 

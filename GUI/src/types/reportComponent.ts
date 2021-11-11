@@ -1,6 +1,10 @@
 export interface IReportComponent {
+    id: string;
     name: string;
     type: string;
+    left ?: number;
+    top ?: number;
+    parent ?: IReportComponent;
 }
 
 export interface IDataComponent extends IReportComponent {
@@ -11,8 +15,6 @@ export interface IDataGrid extends IDataComponent {
     columns: IDataGridColumn[];
     pageSize?: number;
     rowPerPage?: number;
-    top ?: number;
-    left ?: number;
     width ?: number;
     height ?: number;
 }
@@ -29,15 +31,11 @@ export interface ILabel extends IReportComponent {
     font?: string;
     fontSize?: number;
     color?: string;
-    left?: number;
-    top?: number;
 }
 
 export interface IRating  extends IReportComponent{
     text: string;
     rating: number;
-    left ?: number;
-    top ?: number;
 }
 
 export interface ILink extends ILabel {
@@ -52,13 +50,11 @@ export interface ILineChart extends IDoubleAxisComponent {
     verticalGridEnabled?: boolean;
     strikeColor?: string;
     data ?: any[];
-    left ?: number;
-    top ?: number;
 }
 
 export interface IStack extends IReportComponent {
     orientation?: string;
-    subObject: IReportComponent[];
+    subObjects: IReportComponent[];
 }
 
 export interface IAreaChart extends IDoubleAxisComponent {
@@ -70,16 +66,12 @@ export interface IAreaChart extends IDoubleAxisComponent {
     width ?: number;
     height ?: number;
     data ?: any[];
-    left ?: number;
-    top ?: number;
 }
 
 export interface IBarChart extends IDoubleAxisComponent {
     fillColor ?: string;
     width ?: number;
     height ?: number;
-    left ?: number;
-    top ?: number;
 }
 
 export interface IScatterChart extends IDoubleAxisComponent {
@@ -89,15 +81,11 @@ export interface IScatterChart extends IDoubleAxisComponent {
     fillColor ?: string;
     width ?: number;
     height ?: number;
-    left ?: number;
-    top ?: number;
 }
 
 export interface IPieChart extends IDoubleAxisComponent {
     width ?: number;
     height ?: number;
-    left ?: number;
-    top ?: number;
 }
 
 export interface IRadarChart extends IDoubleAxisComponent {
@@ -107,16 +95,12 @@ export interface IRadarChart extends IDoubleAxisComponent {
     width ?: number;
     height ?: number;
     data ?: any[];
-    left ?: number;
-    top ?: number;
 }
 
 export interface IRadialBarChart extends IDoubleAxisComponent {
     width ?: number;
     height ?: number;
     data ?: any[];
-    left ?: number;
-    top ?: number;
 }
 
 export interface ITreeMap extends IDoubleAxisComponent {
@@ -124,8 +108,6 @@ export interface ITreeMap extends IDoubleAxisComponent {
     width ?: number;
     height ?: number;
     data ?: any[];
-    left ?: number;
-    top ?: number;
 }
 
 export interface IDoubleAxisComponent extends IDataComponent {
