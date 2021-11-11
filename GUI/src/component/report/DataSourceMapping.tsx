@@ -2,11 +2,11 @@ import { Button, CardContent, IconButton, MenuItem } from "@material-ui/core";
 import { Component, MouseEvent } from "react";
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 import { Card, CardActions, Dialog, DialogTitle, InputLabel, Select, SelectChangeEvent } from "@mui/material";
-import { IDataSource } from "../types/dataSource";
-import { IDoubleAxisComponent, IReportComponent } from "../types/reportComponent";
+import { IDataSource } from "../../types/dataSource";
+import { IDoubleAxisComponent, IReportComponent } from "../../types/reportComponent";
 
 import "./DataSourceMapping.css";
-import { IDataSourceElement } from "../types/dataSourceElement";
+import { IDataSourceElement } from "../../types/dataSourceElement";
 import { format } from "util";
 import { onComponentChangeListener } from "./ReportOptions";
 

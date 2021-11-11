@@ -1,14 +1,14 @@
 import { Button, Card, CardActions, CardContent, Collapse, List, ListItemButton, ListItemIcon, ListItemText, Typography } from "@mui/material";
 import { Component, MouseEvent } from "react";
-import { UniverseService } from "../business/universe";
-import { IUniverse } from "../types/universe";
-import { IUniverseObject } from "../types/universeObject";
+import { UniverseService } from "../../business/universe";
+import { IUniverse } from "../../types/universe";
+import { IUniverseObject } from "../../types/universeObject";
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
 import BubbleChartIcon from '@mui/icons-material/BubbleChart';
-import { IUniverseClass } from "../types/universeClass";
+import { IUniverseClass } from "../../types/universeClass";
 import "./BusinessLayerTree.css"
 
 export type ObjectSelectedListener = (object: IUniverseObject) => void;

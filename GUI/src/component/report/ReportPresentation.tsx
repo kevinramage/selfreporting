@@ -1,5 +1,5 @@
 import { Component } from "react";
-import { COMPONENT_TYPE, IAreaChart, IBarChart, IDataGrid, ILabel, ILineChart, ILink, IPieChart, IRadarChart, IRadialBarChart, IRating, IReportComponent, IScatterChart, IStack, ITreeMap, ORIENTATION_TYPE } from "../types/reportComponent";
+import { COMPONENT_TYPE, IAreaChart, IBarChart, IDataGrid, ILabel, ILineChart, ILink, IPieChart, IRadarChart, IRadialBarChart, IRating, IReportComponent, IScatterChart, IStack, ITreeMap, ORIENTATION_TYPE } from "../../types/reportComponent";
 import { DataGrid } from '@mui/x-data-grid';
 import { Link, Typography } from "@material-ui/core";
 import { Rating, Stack } from "@mui/material";

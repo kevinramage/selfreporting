@@ -1,7 +1,7 @@
 import { List, ListItemButton, ListItemIcon, ListItemText, Paper, Typography } from "@mui/material";
 import { Component } from "react";
-import { UniverseService } from "../business/universe";
-import { IUniverse } from "../types/universe";
+import { UniverseService } from "../../business/universe";
+import { IUniverse } from "../../types/universe";
 import ChromeReaderModeIcon from '@mui/icons-material/ChromeReaderMode';
 import './UniverseSelection.css';
 

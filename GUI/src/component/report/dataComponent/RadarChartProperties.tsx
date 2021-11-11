@@ -1,19 +1,19 @@
 import { Typography } from "@material-ui/core";
 import { ChangeEvent, Component } from "react";
-import { IDataSource } from "../../types/dataSource";
-import { IReportComponent, IScatterChart } from "../../types/reportComponent";
+import { IDataSource } from "../../../types/dataSource";
+import { IRadarChart, IReportComponent } from "../../../types/reportComponent";
 import { DataSouceMapping } from "../DataSourceMapping";
 import { onComponentChangeListener } from "../ReportOptions";
 
-import "./ScatterChartProperties.css"
+import "./BasicProperties.css"
 
-type ScatterChartPropertiesProps = {
-    component: IScatterChart,
+type RadarChartPropertiesProps = {
+    component: IRadarChart,
     dataSources: IDataSource[],
     componentChangeListener: onComponentChangeListener;
 }
-type ScatterChartPropertiesState = {
-    component: IScatterChart,
+type RadarChartPropertiesState = {
+    component: IRadarChart,
     dataSources: IDataSource[],
     widthText: string,
     heightText: string,
@@ -22,9 +22,9 @@ type ScatterChartPropertiesState = {
     componentChangeListener: onComponentChangeListener;
 };
 
-export class ScatterChartProperties extends Component<ScatterChartPropertiesProps, ScatterChartPropertiesState> {
+export class RadarChartProperties extends Component<RadarChartPropertiesProps, RadarChartPropertiesState> {
 
-    constructor(props: ScatterChartPropertiesProps) {
+    constructor(props: RadarChartPropertiesProps) {
         super(props);
         this.state = { 
             component: props.component,
@@ -40,9 +40,8 @@ export class ScatterChartProperties extends Component<ScatterChartPropertiesProp
         this.onTitleChanged = this.onTitleChanged.bind(this);
         this.onNameAxisLabelChanged = this.onNameAxisLabelChanged.bind(this);
         this.onDataAxisLabelChanged = this.onDataAxisLabelChanged.bind(this);
+        this.onStrokeColorChanged = this.onStrokeColorChanged.bind(this);
         this.onFillColorChanged = this.onFillColorChanged.bind(this);
-        this.onNameAxisUnitChanged = this.onNameAxisUnitChanged.bind(this);
-        this.onDataAxisUnitChanged = this.onDataAxisUnitChanged.bind(this);
         this.onWidthChanged = this.onWidthChanged.bind(this);
         this.onHeightChanged = this.onHeightChanged.bind(this);
         this.onLeftChanged = this.onLeftChanged.bind(this);
@@ -52,7 +51,6 @@ export class ScatterChartProperties extends Component<ScatterChartPropertiesProp
 
     render() {
         const { component, dataSources, widthText, heightText, leftText, topText } = this.state;
-        const fillColor = component.fillColor ? component.fillColor : "";
         return (
             <div>
                 <div>
@@ -77,10 +75,6 @@ export class ScatterChartProperties extends Component<ScatterChartPropertiesProp
                     <input value={component.nameAxisLabel} onChange={this.onNameAxisLabelChanged} />
                 </div>
                 <div>
-                    <Typography className="propertyLabel">X Axis Unit: </Typography>
-                    <input value={component.nameAxisUnit} onChange={this.onNameAxisUnitChanged} />
-                </div>
-                <div>
                     <Typography className="propertyLabel">Y Axis Key: </Typography>
                     <DataSouceMapping component={component} dataSources={dataSources} axisType="Y"
                         onComponentChange={this.onComponentChanged} />
@@ -90,12 +84,12 @@ export class ScatterChartProperties extends Component<ScatterChartPropertiesProp
                     <input value={component.dataAxisLabel} onChange={this.onDataAxisLabelChanged} />
                 </div>
                 <div>
-                    <Typography className="propertyLabel">Y Axis Unit: </Typography>
-                    <input value={component.dataAxisUnit} onChange={this.onDataAxisUnitChanged} />
+                    <Typography className="propertyLabel">Fill color: </Typography>
+                    <input value={component.fillColor} type="color" onChange={this.onFillColorChanged}/>
                 </div>
                 <div>
-                    <Typography className="propertyLabel">Fill color: </Typography>
-                    <input value={fillColor} type="color" onChange={this.onFillColorChanged} />
+                    <Typography className="propertyLabel">Stroke color: </Typography>
+                    <input value={component.strokeColor} type="color" onChange={this.onStrokeColorChanged}/>
                 </div>
                 <div>
                     <Typography className="propertyLabel">Width: </Typography>
@@ -118,86 +112,80 @@ export class ScatterChartProperties extends Component<ScatterChartPropertiesProp
     }
 
     onNameChanged(e: ChangeEvent<HTMLInputElement>) {
-        const scatterChart = this.state.component;
-        scatterChart.name = e.target.value;
-        this.setState({component: scatterChart});
-        this.state.componentChangeListener(scatterChart);
+        const radarChart = this.state.component;
+        radarChart.name = e.target.value;
+        this.setState({component: radarChart});
+        this.state.componentChangeListener(radarChart);
     }
     onTitleChanged(e: ChangeEvent<HTMLInputElement>) {
-        const scatterChart = this.state.component;
-        scatterChart.title = e.target.value;
-        this.setState({component: scatterChart});
-        this.state.componentChangeListener(scatterChart);
+        const radarChart = this.state.component;
+        radarChart.title = e.target.value;
+        this.setState({component: radarChart});
+        this.state.componentChangeListener(radarChart);
     }
     onNameAxisLabelChanged(e: ChangeEvent<HTMLInputElement>) {
-        const scatterChart = this.state.component;
-        scatterChart.nameAxisKey = e.target.value;
-        this.setState({component: scatterChart});
-        this.state.componentChangeListener(scatterChart);
+        const radarChart = this.state.component;
+        radarChart.nameAxisKey = e.target.value;
+        this.setState({component: radarChart});
+        this.state.componentChangeListener(radarChart);
     }
     onDataAxisLabelChanged(e: ChangeEvent<HTMLInputElement>) {
-        const scatterChart = this.state.component;
-        scatterChart.dataAxisKey = e.target.value;
-        this.setState({component: scatterChart});
-        this.state.componentChangeListener(scatterChart);
-    }
-    onNameAxisUnitChanged(e: ChangeEvent<HTMLInputElement>) {
-        const scatterChart = this.state.component;
-        scatterChart.nameAxisUnit = e.target.value;
-        this.setState({component: scatterChart});
-        this.state.componentChangeListener(scatterChart);
-    }
-    onDataAxisUnitChanged(e: ChangeEvent<HTMLInputElement>) {
-        const scatterChart = this.state.component;
-        scatterChart.dataAxisUnit = e.target.value;
-        this.setState({component: scatterChart});
-        this.state.componentChangeListener(scatterChart);
+        const radarChart = this.state.component;
+        radarChart.dataAxisKey = e.target.value;
+        this.setState({component: radarChart});
+        this.state.componentChangeListener(radarChart);
     }
     onFillColorChanged(e: ChangeEvent<HTMLInputElement>) {
-        const scatterChart = this.state.component;
-        scatterChart.fillColor = e.target.value;
-        this.setState({component: scatterChart});
-        this.state.componentChangeListener(scatterChart);
+        const radarChart = this.state.component;
+        radarChart.fillColor = e.target.value;
+        this.setState({component: radarChart});
+        this.state.componentChangeListener(radarChart);
+    }
+    onStrokeColorChanged(e: ChangeEvent<HTMLInputElement>) {
+        const radarChart = this.state.component;
+        radarChart.strokeColor = e.target.value;
+        this.setState({component: radarChart});
+        this.state.componentChangeListener(radarChart);
     }
     onWidthChanged(e: ChangeEvent<HTMLInputElement>) {
         const value = Number.parseInt(e.target.value);
         if (!isNaN(value)) {
-            const scatterChart = this.state.component;
-            scatterChart.width = value;
-            this.setState({component: scatterChart});
-            this.state.componentChangeListener(scatterChart);
+            const radarChart = this.state.component;
+            radarChart.width = value;
+            this.setState({component: radarChart});
+            this.state.componentChangeListener(radarChart);
         }
         this.setState({ widthText: e.target.value });
     }
     onHeightChanged(e: ChangeEvent<HTMLInputElement>) {
         const value = Number.parseInt(e.target.value);
         if (!isNaN(value)) {
-            const scatterChart = this.state.component;
-            scatterChart.height = value;
-            this.setState({component: scatterChart});
-            this.state.componentChangeListener(scatterChart);
+            const radarChart = this.state.component;
+            radarChart.height = value;
+            this.setState({component: radarChart});
+            this.state.componentChangeListener(radarChart);
         }
         this.setState({heightText: e.target.value});
     }
     onLeftChanged(e: ChangeEvent<HTMLInputElement>) {
         const value = Number.parseInt(e.target.value);
         if (!isNaN(value)) {
-            const scatterChart = this.state.component;
-            scatterChart.left = value;
-            this.setState({component: scatterChart});
-            this.state.componentChangeListener(scatterChart);
+            const radarChart = this.state.component;
+            radarChart.left = value;
+            this.setState({component: radarChart});
+            this.state.componentChangeListener(radarChart);
         }
         this.setState({leftText: e.target.value})
     }
     onTopChanged(e: ChangeEvent<HTMLInputElement>) {
         const value = Number.parseInt(e.target.value);
         if (!isNaN(value)) {
-            const scatterChart = this.state.component;
-            scatterChart.top = value;
-            this.setState({component: scatterChart});
-            this.state.componentChangeListener(scatterChart);
+            const radarChart = this.state.component;
+            radarChart.top = value;
+            this.setState({component: radarChart});
+            this.state.componentChangeListener(radarChart);
         }
-        this.setState({topText: e.target.value})
+        this.setState({topText: e.target.value});
     }
 
     onComponentChanged(component: IReportComponent | null) {

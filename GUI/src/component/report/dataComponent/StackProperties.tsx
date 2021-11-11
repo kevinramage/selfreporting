@@ -1,9 +1,9 @@
 import { Typography } from "@material-ui/core";
 import { ChangeEvent, Component } from "react";
-import { IStack } from "../../types/reportComponent";
+import { IStack } from "../../../types/reportComponent";
 import { onComponentChangeListener } from "../ReportOptions";
 
-import "./StackProperties.css"
+import "./BasicProperties.css"
 
 type StackPropertiesProps = {
     component: IStack,

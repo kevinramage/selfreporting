@@ -1,6 +1,6 @@
 import { Chip, MenuItem, Paper, Select, Stack, Typography } from "@mui/material";
 import { Component, MouseEvent } from "react";
-import { IUniverseObject } from "../types/universeObject";
+import { IUniverseObject } from "../../types/universeObject";
 import "./DataSourceEditor.css"
 
 type DataSourceEditorProps = {

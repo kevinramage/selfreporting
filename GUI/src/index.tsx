@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
-import { ReportEditor } from './component/ReportEditor';
+import { ReportEditor } from './component/report/ReportEditor';
 
 ReactDOM.render(
   <React.StrictMode>

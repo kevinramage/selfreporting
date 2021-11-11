@@ -10,7 +10,7 @@ import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import TreeView from '@mui/lab/TreeView';
 import TreeItem from '@mui/lab/TreeItem';
-import { COMPONENT_TYPE, IAreaChart, IBarChart, IDataGrid, ILabel, ILineChart, ILink, IPieChart, IRadarChart, IRadialBarChart, IRating, IReportComponent, IScatterChart, IStack, ITreeMap } from "../types/reportComponent";
+import { COMPONENT_TYPE, IAreaChart, IBarChart, IDataGrid, ILabel, ILineChart, ILink, IPieChart, IRadarChart, IRadialBarChart, IRating, IReportComponent, IScatterChart, IStack, ITreeMap } from "../../types/reportComponent";
 import { ComponentSelection } from "./ComponentSelection";
 import { LabelProperties } from "./dataComponent/LabelProperties";
 import { RatingProperties } from "./dataComponent/RatingProperties";
@@ -19,8 +19,8 @@ import { LineChartProperties } from "./dataComponent/LineChartProperties";
 import { DataGridProperties } from "./dataComponent/DataGridProperties";
 
 import "./ReportOptions.css";
-import { IDataSource } from "../types/dataSource";
-import { IReport, ReportUtils } from "../types/report";
+import { IDataSource } from "../../types/dataSource";
+import { IReport, ReportUtils } from "../../types/report";
 import { AreaChartProperties } from "./dataComponent/AreaChartProperties";
 import { BarChartProperties } from "./dataComponent/BarChartProperties";
 import { ScatterChartProperties } from "./dataComponent/ScatterChartProperties";
@@ -29,7 +29,7 @@ import { RadarChartProperties } from "./dataComponent/RadarChartProperties";
 import { RadialChartProperties } from "./dataComponent/RadialChartProperties";
 import { TreeMapProperties } from "./dataComponent/TreeMapProperties";
 import { StackProperties } from "./dataComponent/StackProperties";
-import { HistoryManagement, HISTORY_SOURCES } from "../business/HistoryManagement";
+import { HistoryManagement, HISTORY_SOURCES } from "../../business/HistoryManagement";
 import { format } from "util";
 
 

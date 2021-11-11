@@ -1,19 +1,19 @@
 import { Typography } from "@material-ui/core";
 import { ChangeEvent, Component } from "react";
-import { IDataSource } from "../../types/dataSource";
-import { ILineChart, IReportComponent } from "../../types/reportComponent";
+import { IDataSource } from "../../../types/dataSource";
+import { IBarChart, IReportComponent } from "../../../types/reportComponent";
 import { DataSouceMapping } from "../DataSourceMapping";
 import { onComponentChangeListener } from "../ReportOptions";
 
-import "./LineChartProperties.css"
+import "./BasicProperties.css"
 
-type LineChartPropertiesProps = {
-    component: ILineChart,
+type BarChartPropertiesProps = {
+    component: IBarChart,
     dataSources: IDataSource[],
     componentChangeListener: onComponentChangeListener;
 }
-type LineChartPropertiesState = {
-    component: ILineChart,
+type BarChartPropertiesState = {
+    component: IBarChart,
     dataSources: IDataSource[],
     widthText: string,
     heightText: string,
@@ -22,9 +22,9 @@ type LineChartPropertiesState = {
     componentChangeListener: onComponentChangeListener;
 };
 
-export class LineChartProperties extends Component<LineChartPropertiesProps, LineChartPropertiesState> {
+export class BarChartProperties extends Component<BarChartPropertiesProps, BarChartPropertiesState> {
 
-    constructor(props: LineChartPropertiesProps) {
+    constructor(props: BarChartPropertiesProps) {
         super(props);
         this.state = { 
             component: props.component,
@@ -33,16 +33,13 @@ export class LineChartProperties extends Component<LineChartPropertiesProps, Lin
             heightText: props.component.height ? props.component.height + "" : "",
             leftText: props.component.left ? props.component.left + "" : "",
             topText: props.component.top ? props.component.top + "" : "",
-            componentChangeListener: props.componentChangeListener 
+            componentChangeListener: props.componentChangeListener
         };
 
         this.onNameChanged = this.onNameChanged.bind(this);
         this.onXAxisLabelChanged = this.onXAxisLabelChanged.bind(this);
         this.onYAxisLabelChanged = this.onYAxisLabelChanged.bind(this);
-        this.onTooltipEnabledChanged = this.onTooltipEnabledChanged.bind(this);
-        this.onHorizontalGridEnabledChanged = this.onHorizontalGridEnabledChanged.bind(this);
-        this.onVerticaEnabledChanged = this.onVerticaEnabledChanged.bind(this);
-        this.onStrikeColorChanged = this.onStrikeColorChanged.bind(this);
+        this.onFillColorChanged = this.onFillColorChanged.bind(this);
         this.onWidthChanged = this.onWidthChanged.bind(this);
         this.onHeightChanged = this.onHeightChanged.bind(this);
         this.onLeftChanged = this.onLeftChanged.bind(this);
@@ -52,10 +49,7 @@ export class LineChartProperties extends Component<LineChartPropertiesProps, Lin
 
     render() {
         const { component, dataSources, widthText, heightText, leftText, topText } = this.state;
-        const tooltipEnabled = component.tooltipEnabled ? component.tooltipEnabled : false;
-        const horizontalGridEnabled = component.horizontalGridEnabled ? component.horizontalGridEnabled : false;
-        const verticalGridEnabled = component.verticalGridEnabled ? component.verticalGridEnabled : false;
-        const strikeColor = component.strikeColor ? component.strikeColor : "";
+        const fillColor = component.fillColor ? component.fillColor : "";
         return (
             <div>
                 <div>
@@ -85,20 +79,8 @@ export class LineChartProperties extends Component<LineChartPropertiesProps, Lin
                     <input value={component.dataAxisLabel} onChange={this.onYAxisLabelChanged} />
                 </div>
                 <div>
-                    <Typography className="propertyLabel">TooltipEnabled: </Typography>
-                    <input checked={tooltipEnabled} type="checkbox" onChange={this.onTooltipEnabledChanged} />
-                </div>
-                <div>
-                    <Typography className="propertyLabel">horizontalGridEnabled: </Typography>
-                    <input checked={horizontalGridEnabled} type="checkbox" onChange={this.onHorizontalGridEnabledChanged} />
-                </div>
-                <div>
-                    <Typography className="propertyLabel">verticalGridEnabled: </Typography>
-                    <input checked={verticalGridEnabled} type="checkbox" onChange={this.onVerticaEnabledChanged} />
-                </div>
-                <div>
-                    <Typography className="propertyLabel">strikeColor: </Typography>
-                    <input value={strikeColor} type="color" onChange={this.onStrikeColorChanged} />
+                    <Typography className="propertyLabel">Stroke color: </Typography>
+                    <input value={fillColor} type="color" onChange={this.onFillColorChanged} />
                 </div>
                 <div>
                     <Typography className="propertyLabel">Width: </Typography>
@@ -121,86 +103,66 @@ export class LineChartProperties extends Component<LineChartPropertiesProps, Lin
     }
 
     onNameChanged(e: ChangeEvent<HTMLInputElement>) {
-        const lineChart = this.state.component;
-        lineChart.name = e.target.value;
-        this.setState({component: lineChart});
-        this.state.componentChangeListener(lineChart);
+        const barChart = this.state.component;
+        barChart.name = e.target.value;
+        this.setState({component: barChart});
+        this.state.componentChangeListener(barChart);
     }
     onXAxisLabelChanged(e: ChangeEvent<HTMLInputElement>) {
-        const lineChart = this.state.component;
-        lineChart.nameAxisLabel = e.target.value;
-        this.setState({component: lineChart});
-        this.state.componentChangeListener(lineChart);
+        const barChart = this.state.component;
+        barChart.nameAxisKey = e.target.value;
+        this.setState({component: barChart});
+        this.state.componentChangeListener(barChart);
     }
     onYAxisLabelChanged(e: ChangeEvent<HTMLInputElement>) {
-        const lineChart = this.state.component;
-        lineChart.dataAxisLabel = e.target.value;
-        this.setState({component: lineChart});
-        this.state.componentChangeListener(lineChart);
+        const barChart = this.state.component;
+        barChart.dataAxisKey = e.target.value;
+        this.setState({component: barChart});
+        this.state.componentChangeListener(barChart);
     }
-    
-    onTooltipEnabledChanged(e: ChangeEvent<HTMLInputElement>) {
-        const lineChart = this.state.component;
-        lineChart.tooltipEnabled = e.target.checked;
-        this.setState({component: lineChart});
-        this.state.componentChangeListener(lineChart);
-    }
-    onHorizontalGridEnabledChanged(e: ChangeEvent<HTMLInputElement>) {
-        const lineChart = this.state.component;
-        lineChart.horizontalGridEnabled = e.target.checked;
-        this.setState({component: lineChart});
-        this.state.componentChangeListener(lineChart);
-    }
-    onVerticaEnabledChanged(e: ChangeEvent<HTMLInputElement>) {
-        const lineChart = this.state.component;
-        lineChart.verticalGridEnabled = e.target.checked;
-        this.setState({component: lineChart});
-        this.state.componentChangeListener(lineChart);
-    }
-
-    onStrikeColorChanged(e: ChangeEvent<HTMLInputElement>) {
-        const lineChart = this.state.component;
-        lineChart.strikeColor = e.target.value;
-        this.setState({component: lineChart});
-        this.state.componentChangeListener(lineChart);
+    onFillColorChanged(e: ChangeEvent<HTMLInputElement>) {
+        const barChart = this.state.component;
+        barChart.fillColor = e.target.value;
+        this.setState({component: barChart});
+        this.state.componentChangeListener(barChart);
     }
     onWidthChanged(e: ChangeEvent<HTMLInputElement>) {
         const value = Number.parseInt(e.target.value);
         if (!isNaN(value)) {
-            const lineChart = this.state.component;
-            lineChart.width = value;
-            this.setState({component: lineChart});
-            this.state.componentChangeListener(lineChart);
+            const barChart = this.state.component;
+            barChart.width = value;
+            this.setState({component: barChart});
+            this.state.componentChangeListener(barChart);
         }
         this.setState({ widthText: e.target.value });
     }
     onHeightChanged(e: ChangeEvent<HTMLInputElement>) {
         const value = Number.parseInt(e.target.value);
         if (!isNaN(value)) {
-            const lineChart = this.state.component;
-            lineChart.height = value;
-            this.setState({component: lineChart});
-            this.state.componentChangeListener(lineChart);
+            const barChart = this.state.component;
+            barChart.height = value;
+            this.setState({component: barChart});
+            this.state.componentChangeListener(barChart);
         }
         this.setState({heightText: e.target.value});
     }
     onLeftChanged(e: ChangeEvent<HTMLInputElement>) {
         const value = Number.parseInt(e.target.value);
         if (!isNaN(value)) {
-            const lineChart = this.state.component;
-            lineChart.left = value;
-            this.setState({component: lineChart});
-            this.state.componentChangeListener(lineChart);
+            const barChart = this.state.component;
+            barChart.left = value;
+            this.setState({component: barChart});
+            this.state.componentChangeListener(barChart);
         }
         this.setState({leftText: e.target.value})
     }
     onTopChanged(e: ChangeEvent<HTMLInputElement>) {
         const value = Number.parseInt(e.target.value);
         if (!isNaN(value)) {
-            const lineChart = this.state.component;
-            lineChart.top = value;
-            this.setState({component: lineChart});
-            this.state.componentChangeListener(lineChart);
+            const barChart = this.state.component;
+            barChart.top = value;
+            this.setState({component: barChart});
+            this.state.componentChangeListener(barChart);
         }
         this.setState({topText: e.target.value})
     }

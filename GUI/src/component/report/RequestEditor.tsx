@@ -1,13 +1,13 @@
 import { Button, Card, CardActions, CardContent } from "@mui/material";
 import { Component } from "react";
 import { BusinessLayerTree } from "./BusinessLayerTree";
-import { DataSourceEditor } from "./DataSourceEditor";
+import { DataSourceEditor } from "./DataSourceEditor2";
 import SaveIcon from '@mui/icons-material/Save';
 import "./RequestEditor.css"
-import { IUniverseObject } from "../types/universeObject";
+import { IUniverseObject } from "../../types/universeObject";
 import { v4 } from "uuid";
-import { IUniverseDimension } from "../types/universeDimension";
-import { IUniverseMetric } from "../types/universeMetric";
+import { IUniverseDimension } from "../../types/universeDimension";
+import { IUniverseMetric } from "../../types/universeMetric";
 
 type RequestEditorProps = {};
 type RequestEditorState = {

@@ -1,11 +1,11 @@
 import { Typography } from "@material-ui/core";
 import { ChangeEvent, Component } from "react";
-import { IDataSource } from "../../types/dataSource";
-import { IAreaChart, IReportComponent } from "../../types/reportComponent";
+import { IDataSource } from "../../../types/dataSource";
+import { IAreaChart, IReportComponent } from "../../../types/reportComponent";
 import { DataSouceMapping } from "../DataSourceMapping";
 import { onComponentChangeListener } from "../ReportOptions";
 
-import "./AreaChartProperties.css"
+import "./BasicProperties.css"
 
 type AreaChartPropertiesProps = {
     component: IAreaChart,

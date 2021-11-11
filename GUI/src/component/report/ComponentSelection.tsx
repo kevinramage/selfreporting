@@ -2,7 +2,7 @@ import { Button, CardContent, ImageList, ImageListItem, Link } from "@material-u
 import { Card, CardActions, ImageListItemBar } from "@mui/material";
 import React, { Component, MouseEvent } from "react";
 import { v4 } from "uuid";
-import { COMPONENT_TYPE, IAreaChart, IBarChart, IDataGrid, ILabel, ILineChart, ILink, IPieChart, IRadarChart, IRadialBarChart, IRating, IReportComponent, IScatterChart, IStack, ITreeMap, ORIENTATION_TYPE } from "../types/reportComponent";
+import { COMPONENT_TYPE, IAreaChart, IBarChart, IDataGrid, ILabel, ILineChart, ILink, IPieChart, IRadarChart, IRadialBarChart, IRating, IReportComponent, IScatterChart, IStack, ITreeMap, ORIENTATION_TYPE } from "../../types/reportComponent";
 
 import "./ComponentSelection.css";
 

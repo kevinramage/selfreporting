@@ -1,9 +1,9 @@
 import { Typography } from "@material-ui/core";
 import { ChangeEvent, Component } from "react";
-import { IRating } from "../../types/reportComponent";
+import { IRating } from "../../../types/reportComponent";
 import { onComponentChangeListener } from "../ReportOptions";
 
-import "./RatingProperties.css"
+import "./BasicProperties.css"
 
 type RatingPropertiesProps = {
     component: IRating,

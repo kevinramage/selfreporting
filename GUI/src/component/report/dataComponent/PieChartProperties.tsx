@@ -1,11 +1,11 @@
 import { Typography } from "@material-ui/core";
 import { ChangeEvent, Component } from "react";
-import { IDataSource } from "../../types/dataSource";
-import { IPieChart, IReportComponent } from "../../types/reportComponent";
+import { IDataSource } from "../../../types/dataSource";
+import { IPieChart, IReportComponent } from "../../../types/reportComponent";
 import { DataSouceMapping } from "../DataSourceMapping";
 import { onComponentChangeListener } from "../ReportOptions";
 
-import "./PieChartProperties.css"
+import "./BasicProperties.css"
 
 type PieChartPropertiesProps = {
     component: IPieChart,

@@ -1,9 +1,9 @@
 import { Typography } from "@material-ui/core";
 import { ChangeEvent, Component } from "react";
-import { IDataGrid, IDataGridColumn } from "../../types/reportComponent";
+import { IDataGrid, IDataGridColumn } from "../../../types/reportComponent";
 import { onComponentChangeListener } from "../ReportOptions";
 
-import "./DataGridProperties.css"
+import "./BasicProperties.css"
 
 type DataGridPropertiesProps = {
     component: IDataGrid,

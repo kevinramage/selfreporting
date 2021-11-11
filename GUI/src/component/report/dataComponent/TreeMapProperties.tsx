@@ -1,19 +1,19 @@
 import { Typography } from "@material-ui/core";
 import { ChangeEvent, Component } from "react";
-import { IDataSource } from "../../types/dataSource";
-import { IRadarChart, IReportComponent } from "../../types/reportComponent";
+import { IDataSource } from "../../../types/dataSource";
+import { IReportComponent, ITreeMap } from "../../../types/reportComponent";
 import { DataSouceMapping } from "../DataSourceMapping";
 import { onComponentChangeListener } from "../ReportOptions";
 
-import "./RadarChartProperties.css"
+import "./BasicProperties.css"
 
-type RadarChartPropertiesProps = {
-    component: IRadarChart,
+type TreeMapPropertiesProps = {
+    component: ITreeMap,
     dataSources: IDataSource[],
     componentChangeListener: onComponentChangeListener;
 }
-type RadarChartPropertiesState = {
-    component: IRadarChart,
+type TreeMapPropertiesState = {
+    component: ITreeMap,
     dataSources: IDataSource[],
     widthText: string,
     heightText: string,
@@ -22,9 +22,9 @@ type RadarChartPropertiesState = {
     componentChangeListener: onComponentChangeListener;
 };
 
-export class RadarChartProperties extends Component<RadarChartPropertiesProps, RadarChartPropertiesState> {
+export class TreeMapProperties extends Component<TreeMapPropertiesProps, TreeMapPropertiesState> {
 
-    constructor(props: RadarChartPropertiesProps) {
+    constructor(props: TreeMapPropertiesProps) {
         super(props);
         this.state = { 
             component: props.component,
@@ -40,8 +40,6 @@ export class RadarChartProperties extends Component<RadarChartPropertiesProps, R
         this.onTitleChanged = this.onTitleChanged.bind(this);
         this.onNameAxisLabelChanged = this.onNameAxisLabelChanged.bind(this);
         this.onDataAxisLabelChanged = this.onDataAxisLabelChanged.bind(this);
-        this.onStrokeColorChanged = this.onStrokeColorChanged.bind(this);
-        this.onFillColorChanged = this.onFillColorChanged.bind(this);
         this.onWidthChanged = this.onWidthChanged.bind(this);
         this.onHeightChanged = this.onHeightChanged.bind(this);
         this.onLeftChanged = this.onLeftChanged.bind(this);
@@ -84,14 +82,6 @@ export class RadarChartProperties extends Component<RadarChartPropertiesProps, R
                     <input value={component.dataAxisLabel} onChange={this.onDataAxisLabelChanged} />
                 </div>
                 <div>
-                    <Typography className="propertyLabel">Fill color: </Typography>
-                    <input value={component.fillColor} type="color" onChange={this.onFillColorChanged}/>
-                </div>
-                <div>
-                    <Typography className="propertyLabel">Stroke color: </Typography>
-                    <input value={component.strokeColor} type="color" onChange={this.onStrokeColorChanged}/>
-                </div>
-                <div>
                     <Typography className="propertyLabel">Width: </Typography>
                     <input value={widthText} type="number" min="0" step="5" onChange={this.onWidthChanged} />
                 </div>
@@ -112,78 +102,66 @@ export class RadarChartProperties extends Component<RadarChartPropertiesProps, R
     }
 
     onNameChanged(e: ChangeEvent<HTMLInputElement>) {
-        const radarChart = this.state.component;
-        radarChart.name = e.target.value;
-        this.setState({component: radarChart});
-        this.state.componentChangeListener(radarChart);
+        const treeMap = this.state.component;
+        treeMap.name = e.target.value;
+        this.setState({component: treeMap});
+        this.state.componentChangeListener(treeMap);
     }
     onTitleChanged(e: ChangeEvent<HTMLInputElement>) {
-        const radarChart = this.state.component;
-        radarChart.title = e.target.value;
-        this.setState({component: radarChart});
-        this.state.componentChangeListener(radarChart);
+        const treeMap = this.state.component;
+        treeMap.title = e.target.value;
+        this.setState({component: treeMap});
+        this.state.componentChangeListener(treeMap);
     }
     onNameAxisLabelChanged(e: ChangeEvent<HTMLInputElement>) {
-        const radarChart = this.state.component;
-        radarChart.nameAxisKey = e.target.value;
-        this.setState({component: radarChart});
-        this.state.componentChangeListener(radarChart);
+        const treeMap = this.state.component;
+        treeMap.nameAxisKey = e.target.value;
+        this.setState({component: treeMap});
+        this.state.componentChangeListener(treeMap);
     }
     onDataAxisLabelChanged(e: ChangeEvent<HTMLInputElement>) {
-        const radarChart = this.state.component;
-        radarChart.dataAxisKey = e.target.value;
-        this.setState({component: radarChart});
-        this.state.componentChangeListener(radarChart);
-    }
-    onFillColorChanged(e: ChangeEvent<HTMLInputElement>) {
-        const radarChart = this.state.component;
-        radarChart.fillColor = e.target.value;
-        this.setState({component: radarChart});
-        this.state.componentChangeListener(radarChart);
-    }
-    onStrokeColorChanged(e: ChangeEvent<HTMLInputElement>) {
-        const radarChart = this.state.component;
-        radarChart.strokeColor = e.target.value;
-        this.setState({component: radarChart});
-        this.state.componentChangeListener(radarChart);
+        const treeMap = this.state.component;
+        treeMap.dataAxisKey = e.target.value;
+        this.setState({component: treeMap});
+        this.state.componentChangeListener(treeMap);
     }
     onWidthChanged(e: ChangeEvent<HTMLInputElement>) {
         const value = Number.parseInt(e.target.value);
         if (!isNaN(value)) {
-            const radarChart = this.state.component;
-            radarChart.width = value;
-            this.setState({component: radarChart});
-            this.state.componentChangeListener(radarChart);
+            const treeMap = this.state.component;
+            treeMap.width = value;
+            this.setState({component: treeMap});
+            this.state.componentChangeListener(treeMap);
         }
         this.setState({ widthText: e.target.value });
     }
     onHeightChanged(e: ChangeEvent<HTMLInputElement>) {
         const value = Number.parseInt(e.target.value);
         if (!isNaN(value)) {
-            const radarChart = this.state.component;
-            radarChart.height = value;
-            this.setState({component: radarChart});
-            this.state.componentChangeListener(radarChart);
+            const treeMap = this.state.component;
+            treeMap.height = value;
+            this.setState({component: treeMap});
+            this.state.componentChangeListener(treeMap);
         }
         this.setState({heightText: e.target.value});
     }
     onLeftChanged(e: ChangeEvent<HTMLInputElement>) {
         const value = Number.parseInt(e.target.value);
         if (!isNaN(value)) {
-            const radarChart = this.state.component;
-            radarChart.left = value;
-            this.setState({component: radarChart});
-            this.state.componentChangeListener(radarChart);
+            const treeMap = this.state.component;
+            treeMap.left = value;
+            this.setState({component: treeMap});
+            this.state.componentChangeListener(treeMap);
         }
         this.setState({leftText: e.target.value})
     }
     onTopChanged(e: ChangeEvent<HTMLInputElement>) {
         const value = Number.parseInt(e.target.value);
         if (!isNaN(value)) {
-            const radarChart = this.state.component;
-            radarChart.top = value;
-            this.setState({component: radarChart});
-            this.state.componentChangeListener(radarChart);
+            const treeMap = this.state.component;
+            treeMap.top = value;
+            this.setState({component: treeMap});
+            this.state.componentChangeListener(treeMap);
         }
         this.setState({topText: e.target.value});
     }

@@ -1,19 +1,19 @@
 import { Typography } from "@material-ui/core";
 import { ChangeEvent, Component } from "react";
-import { IDataSource } from "../../types/dataSource";
-import { IReportComponent, ITreeMap } from "../../types/reportComponent";
+import { IDataSource } from "../../../types/dataSource";
+import { IRadialBarChart, IReportComponent } from "../../../types/reportComponent";
 import { DataSouceMapping } from "../DataSourceMapping";
 import { onComponentChangeListener } from "../ReportOptions";
 
-import "./TreeMapProperties.css"
+import "./BasicProperties.css"
 
-type TreeMapPropertiesProps = {
-    component: ITreeMap,
+type RadialChartPropertiesProps = {
+    component: IRadialBarChart,
     dataSources: IDataSource[],
     componentChangeListener: onComponentChangeListener;
 }
-type TreeMapPropertiesState = {
-    component: ITreeMap,
+type RadialChartPropertiesState = {
+    component: IRadialBarChart,
     dataSources: IDataSource[],
     widthText: string,
     heightText: string,
@@ -22,9 +22,9 @@ type TreeMapPropertiesState = {
     componentChangeListener: onComponentChangeListener;
 };
 
-export class TreeMapProperties extends Component<TreeMapPropertiesProps, TreeMapPropertiesState> {
+export class RadialChartProperties extends Component<RadialChartPropertiesProps, RadialChartPropertiesState> {
 
-    constructor(props: TreeMapPropertiesProps) {
+    constructor(props: RadialChartPropertiesProps) {
         super(props);
         this.state = { 
             component: props.component,
@@ -37,7 +37,6 @@ export class TreeMapProperties extends Component<TreeMapPropertiesProps, TreeMap
         };
 
         this.onNameChanged = this.onNameChanged.bind(this);
-        this.onTitleChanged = this.onTitleChanged.bind(this);
         this.onNameAxisLabelChanged = this.onNameAxisLabelChanged.bind(this);
         this.onDataAxisLabelChanged = this.onDataAxisLabelChanged.bind(this);
         this.onWidthChanged = this.onWidthChanged.bind(this);
@@ -58,10 +57,6 @@ export class TreeMapProperties extends Component<TreeMapPropertiesProps, TreeMap
                 <div>
                     <Typography className="propertyLabel">Type: </Typography>
                     <input value={component.type} disabled readOnly/>
-                </div>
-                <div>
-                    <Typography className="propertyLabel">Title: </Typography>
-                    <input value={component.title} onChange={this.onTitleChanged}/>
                 </div>
                 <div>
                     <Typography className="propertyLabel">X Axis Key: </Typography>
@@ -102,66 +97,60 @@ export class TreeMapProperties extends Component<TreeMapPropertiesProps, TreeMap
     }
 
     onNameChanged(e: ChangeEvent<HTMLInputElement>) {
-        const treeMap = this.state.component;
-        treeMap.name = e.target.value;
-        this.setState({component: treeMap});
-        this.state.componentChangeListener(treeMap);
-    }
-    onTitleChanged(e: ChangeEvent<HTMLInputElement>) {
-        const treeMap = this.state.component;
-        treeMap.title = e.target.value;
-        this.setState({component: treeMap});
-        this.state.componentChangeListener(treeMap);
+        const radialChart = this.state.component;
+        radialChart.name = e.target.value;
+        this.setState({component: radialChart});
+        this.state.componentChangeListener(radialChart);
     }
     onNameAxisLabelChanged(e: ChangeEvent<HTMLInputElement>) {
-        const treeMap = this.state.component;
-        treeMap.nameAxisKey = e.target.value;
-        this.setState({component: treeMap});
-        this.state.componentChangeListener(treeMap);
+        const radialChart = this.state.component;
+        radialChart.nameAxisKey = e.target.value;
+        this.setState({component: radialChart});
+        this.state.componentChangeListener(radialChart);
     }
     onDataAxisLabelChanged(e: ChangeEvent<HTMLInputElement>) {
-        const treeMap = this.state.component;
-        treeMap.dataAxisKey = e.target.value;
-        this.setState({component: treeMap});
-        this.state.componentChangeListener(treeMap);
+        const radialChart = this.state.component;
+        radialChart.dataAxisKey = e.target.value;
+        this.setState({component: radialChart});
+        this.state.componentChangeListener(radialChart);
     }
     onWidthChanged(e: ChangeEvent<HTMLInputElement>) {
         const value = Number.parseInt(e.target.value);
         if (!isNaN(value)) {
-            const treeMap = this.state.component;
-            treeMap.width = value;
-            this.setState({component: treeMap});
-            this.state.componentChangeListener(treeMap);
+            const radialChart = this.state.component;
+            radialChart.width = value;
+            this.setState({component: radialChart});
+            this.state.componentChangeListener(radialChart);
         }
         this.setState({ widthText: e.target.value });
     }
     onHeightChanged(e: ChangeEvent<HTMLInputElement>) {
         const value = Number.parseInt(e.target.value);
         if (!isNaN(value)) {
-            const treeMap = this.state.component;
-            treeMap.height = value;
-            this.setState({component: treeMap});
-            this.state.componentChangeListener(treeMap);
+            const radialChart = this.state.component;
+            radialChart.height = value;
+            this.setState({component: radialChart});
+            this.state.componentChangeListener(radialChart);
         }
         this.setState({heightText: e.target.value});
     }
     onLeftChanged(e: ChangeEvent<HTMLInputElement>) {
         const value = Number.parseInt(e.target.value);
         if (!isNaN(value)) {
-            const treeMap = this.state.component;
-            treeMap.left = value;
-            this.setState({component: treeMap});
-            this.state.componentChangeListener(treeMap);
+            const radialChart = this.state.component;
+            radialChart.left = value;
+            this.setState({component: radialChart});
+            this.state.componentChangeListener(radialChart);
         }
         this.setState({leftText: e.target.value})
     }
     onTopChanged(e: ChangeEvent<HTMLInputElement>) {
         const value = Number.parseInt(e.target.value);
         if (!isNaN(value)) {
-            const treeMap = this.state.component;
-            treeMap.top = value;
-            this.setState({component: treeMap});
-            this.state.componentChangeListener(treeMap);
+            const radialChart = this.state.component;
+            radialChart.top = value;
+            this.setState({component: radialChart});
+            this.state.componentChangeListener(radialChart);
         }
         this.setState({topText: e.target.value});
     }

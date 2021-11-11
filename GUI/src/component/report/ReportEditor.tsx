@@ -16,10 +16,10 @@ import { ReportPresentation } from "./ReportPresentation";
 
 import "./ReportEditor.css";
 import { ReportOptions } from "./ReportOptions";
-import { COMPONENT_TYPE, IDataComponent, IReportComponent } from "../types/reportComponent";
-import { IDataSource } from "../types/dataSource";
-import { IReport, ReportUtils } from "../types/report";
-import { HistoryManagement, HISTORY_SOURCES } from "../business/HistoryManagement";
+import { COMPONENT_TYPE, IDataComponent, IReportComponent } from "../../types/reportComponent";
+import { IDataSource } from "../../types/dataSource";
+import { IReport, ReportUtils } from "../../types/report";
+import { HistoryManagement, HISTORY_SOURCES } from "../../business/HistoryManagement";
 import { List, ListItem } from "@material-ui/core";
 
 
@@ -105,7 +105,7 @@ export class ReportEditor extends Component<ReportEditorProps, ReportEditorState
                     <IconButton disabled={!reportHistory.isRepeatable()} onClick={this.clickOnReplay}><ReplayIcon /></IconButton>
                     <IconButton onClick={this.clickOnHistory}><HistoryIcon /></IconButton>
                     <Divider style={{height: "40px"}} orientation="vertical" />
-                    <IconButton disabled={true} onClick={this.clickOnDataSource}><StorageIcon /></IconButton>
+                    <IconButton onClick={this.clickOnDataSource}><StorageIcon /></IconButton>
                     <IconButton disabled={true}><AssessmentIcon /></IconButton>
                     <IconButton disabled={true}><BuildIcon /></IconButton>
                     <IconButton onClick={this.clickOnRefresh}><AutorenewIcon /></IconButton>
@@ -131,6 +131,7 @@ export class ReportEditor extends Component<ReportEditorProps, ReportEditorState
                     })}
                     </List>
                 </Dialog>
+                
             </div>
         )
     }
