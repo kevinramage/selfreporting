@@ -25,3 +25,9 @@
 .divider {
     height: 40px;
 }
+
+.historyDialog {
+    width: 600px;
+    height: 300px;
+    overflow: auto;
+}

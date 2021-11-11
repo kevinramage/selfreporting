@@ -20,7 +20,7 @@ import { DataGridProperties } from "./dataComponent/DataGridProperties";
 
 import "./ReportOptions.css";
 import { IDataSource } from "../types/dataSource";
-import { IReport } from "../types/report";
+import { IReport, ReportUtils } from "../types/report";
 import { AreaChartProperties } from "./dataComponent/AreaChartProperties";
 import { BarChartProperties } from "./dataComponent/BarChartProperties";
 import { ScatterChartProperties } from "./dataComponent/ScatterChartProperties";
@@ -29,6 +29,8 @@ import { RadarChartProperties } from "./dataComponent/RadarChartProperties";
 import { RadialChartProperties } from "./dataComponent/RadialChartProperties";
 import { TreeMapProperties } from "./dataComponent/TreeMapProperties";
 import { StackProperties } from "./dataComponent/StackProperties";
+import { HistoryManagement, HISTORY_SOURCES } from "../business/HistoryManagement";
+import { format } from "util";
 
 
 export type onComponentChangeListener = (component: IReportComponent|null) => void;
@@ -232,18 +234,16 @@ export class ReportOptions extends Component<ReportOptionsProps, ReportOptionsSt
                 const index = container.subObjects.indexOf(selectedComponent);
                 container.subObjects.splice(index, 1);
                 this.setState({selected: undefined});
-                if (this.state.componentChangeListener) {
-                    this.state.componentChangeListener(this.props.report.rootComponent);
-                }
 
             // Delete root node
             } else {
                 this.props.report.rootComponent = null;
                 this.setState({selected: undefined});
-                if (this.state.componentChangeListener) {
-                    this.state.componentChangeListener(null);
-                }
             }
+
+            // History and notification
+            this.addState(format("Delete component %s", selectedComponent.name));
+            this.notifyComponentChanges();
         }
         
         
@@ -259,9 +259,6 @@ export class ReportOptions extends Component<ReportOptionsProps, ReportOptionsSt
             // No component present
             if (this.props.report.rootComponent === null ) {
                 this.props.report.rootComponent = component;
-                if (this.state.componentChangeListener) {
-                    this.state.componentChangeListener(component);
-                }
 
             // Component selected is container
             } else if (selectedComponent !== null && selectedComponent.type === COMPONENT_TYPE.STACK) {
@@ -270,16 +267,16 @@ export class ReportOptions extends Component<ReportOptionsProps, ReportOptionsSt
                 component.parent = container;
                 container.subObjects.push(component);
                 state.expanded.push(container.id);
-                if (this.state.componentChangeListener) {
-                    this.state.componentChangeListener(this.props.report.rootComponent);
-                }
             }
+
+            // History and notification
+            this.addState(format("Add component %s",component.name));
+            this.notifyComponentChanges();
         }
         this.setState(state);
     }
 
     onCloseUpdateSelectComponentDialog(component: IReportComponent|null, isSubmit: boolean) {
-        console.info("onCloseUpdateSelectComponentDialog");
         let state : ReportOptionsState = this.state;
         state.isOpenCreateComponent = false;
         state.isOpenUpdateComponent = false;
@@ -297,16 +294,12 @@ export class ReportOptions extends Component<ReportOptionsProps, ReportOptionsSt
                 
                 // Root element
                 } else {
-                    console.info("Root element")
-                    console.info(component);
                     this.props.report.rootComponent = component;
-                    console.info(this.props.report.rootComponent);
                 }
 
-                // Notify
-                if (this.state.componentChangeListener) {
-                    this.state.componentChangeListener(this.props.report.rootComponent);
-                }
+                // History and notification
+                this.addState(format("Update component from %s to %s",selectedComponent.name, component.name));
+                this.notifyComponentChanges();
             }
         }
         this.setState(state);
@@ -451,7 +444,15 @@ export class ReportOptions extends Component<ReportOptionsProps, ReportOptionsSt
         )
     }
 
-    notifyComponentChanges(component: IReportComponent | null) {
-        this.state.componentChangeListener(component);
+    private notifyComponentChanges() {
+        if (this.state.componentChangeListener) {
+            this.state.componentChangeListener(this.props.report.rootComponent);
+        }
+    }
+
+    private addState(change: string) {
+        const history = HistoryManagement.instance.getSource(HISTORY_SOURCES.REPORT);
+        const clone = ReportUtils.clone(this.props.report);
+        history.addState(clone, change);
     }
 }
